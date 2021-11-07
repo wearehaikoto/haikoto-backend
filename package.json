@@ -1,0 +1,25 @@
+{
+  "name": "haikoto",
+  "version": "1.0.0",
+  "description": "Creating a unique workplace culture",
+  "main": "index.js",
+  "repository": "https://github.com/MYPD/haikoto-backend",
+  "author": "Eniola Osabiya <eosabiya@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "helmet": "^4.6.0",
+    "mongoose": "^6.0.12",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.14"
+  }
+}
