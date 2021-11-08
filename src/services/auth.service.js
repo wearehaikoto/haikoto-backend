@@ -10,7 +10,7 @@ class AuthService {
         await user.save();
 
         // Generate token
-        const token = await TokenService.generateToken({ user });
+        const token = await TokenService.generateToken(user);
 
         return (data = {
             user,
@@ -31,7 +31,7 @@ class AuthService {
         }
 
         // Generate token
-        const token = await TokenService.generateToken({ user });
+        const token = await TokenService.generateToken(user);
 
         return (data = {
             user,
