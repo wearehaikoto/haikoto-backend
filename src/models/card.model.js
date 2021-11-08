@@ -1,7 +1,12 @@
 const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema(
+const CardSchema = new mongoose.Schema(
     {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: "users"
+        },
         cardTitle: {
             type: String,
             required: true
@@ -21,4 +26,4 @@ const UserSchema = new mongoose.Schema(
 );
 
 // Export the model
-module.exports = mongoose.model("Card", UserSchema);
+module.exports = mongoose.model("Card", CardSchema);
