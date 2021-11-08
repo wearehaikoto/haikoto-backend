@@ -1,15 +1,10 @@
-const AuthServ = require("../services/auth.service");
 const response = require("../utils/response");
+const AuthService = require("../services/auth.service");
 
 class AuthContoller {
-  async signup(req, res) {
-    const result = await AuthServ.signup(req.body);
-    res.status(201).send(response("User created", result));
-  }
-
-  async login(req, res) {
-    const result = await AuthServ.login(req.body);
-    res.status(200).send(response("User login successful", result));
+  async loginOrSignup(req, res) {
+    const result = await AuthService.loginOrSignup(req.body);
+    res.status(200).send(response("User login Successful...", result));
   }
 }
 

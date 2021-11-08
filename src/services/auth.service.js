@@ -1,17 +1,16 @@
-const { JWT_SECRET } = process.env
-const JWT = require("jsonwebtoken");
 const User = require("./../models/user.model");
+const TokenService = require("./token.service");
 const CustomError = require("./../utils/custom-error");
 
 class AuthService {
     // User sign up
     async signup(data) {
-        let user = await User.findOne({ codeName: data.codeName });
-        if (user) throw new CustomError("Code Name already exists");
-
-        user = new User(data);
-        const token = JWT.sign({ id: user._id }, JWT_SECRET);
+        // Create user in database
+        const user = new User(data);
         await user.save();
+
+        // Generate token
+        const token = await TokenService.generateToken({ user });
 
         return (data = {
             user,
@@ -19,15 +18,20 @@ class AuthService {
         });
     }
 
-    // User login
-    async login(data) {
+    // User loginOrSignup
+    async loginOrSignup(data) {
         if (!data.codeName) throw new CustomError("codeName is required");
 
-        // Check if user exist
+        // Check if user already exist
         const user = await User.findOne({ codeName: data.codeName });
-        if (!user) throw new CustomError(`No user with code Name: ${data.codeName} found`);
 
-        const token = await JWT.sign({ id: user._id }, JWT_SECRET, { expiresIn: 60 * 60 });
+        // Create user if not exist
+        if (!user) {
+            return await this.signup(data);
+        }
+
+        // Generate token
+        const token = await TokenService.generateToken({ user });
 
         return (data = {
             user,
