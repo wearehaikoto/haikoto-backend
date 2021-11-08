@@ -9,7 +9,7 @@ function authGuard() {
 
         const token = req.headers.authorization.split(" ")[1];
 
-        const userDataDecodedFromToken = TokenService.verifyToken(token);
+        const userDataDecodedFromToken = await TokenService.decodeToken(token);
 
         let user = await User.findOne({ _id: userDataDecodedFromToken.id });
 
