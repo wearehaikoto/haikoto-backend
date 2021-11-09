@@ -16,6 +16,15 @@ const GameSchema = new mongoose.Schema(
                 }
             ],
             required: true
+        },
+        answers: {
+            type: [
+                {
+                    type: Array || Boolean,
+                    required: true
+                }
+            ],
+            required: false
         }
     },
     {
