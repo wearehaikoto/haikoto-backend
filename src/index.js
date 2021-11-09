@@ -4,11 +4,11 @@ const app = require("express")();
 // Pre-route middlewares
 require("./middlewares/pre-route.middleware")(app);
 
-app.get("/", (req, res) => {
-    return res
-        .status(200)
-        .json({ message: "Hello world from Haikoto Backend!" });
-});
+// app.get("/", (req, res) => {
+//     return res
+//         .status(200)
+//         .json({ message: "Hello world from Haikoto Backend!" });
+// });
 
 // API routes
 app.use("/api", require("./routes"));
