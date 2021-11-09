@@ -4,9 +4,9 @@ const response = require("./../utils/response")
 const errorNames = ["CastError", "JsonWebTokenError", "ValidationError", "SyntaxError", "MongooseError", "MongoError"]
 
 module.exports = (app) => {
-     app.use("*", (req, res) => {
-          res.status(404).send(response("Invalid request", null, false));
-     });
+     // app.use("*", (req, res) => {
+     //      res.status(404).send(response("Invalid request", null, false));
+     // });
 
      app.use((error, req, res, next) => {
           if (error.name == "CustomError") {
