@@ -7,7 +7,7 @@ require("./middlewares/pre-route.middleware")(app);
 app.get("/", (req, res) => {
     return res
         .status(200)
-        .json({ message: "Hello world from Haikoto Backend!" });
+        .json({ message: "Hello world from Haikoto Backend! :)" });
 });
 
 // API routes
