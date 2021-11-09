@@ -13,7 +13,7 @@ class CardService {
     }
 
     async getAll() {
-        return await Card.find({}, { __v: 0 });
+        return await Card.find({}, { __v: 0 }).populate("userId", "_id codeName");
     }
 
     async getAllByUser(user) {
