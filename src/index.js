@@ -4,11 +4,11 @@ const app = require("express")();
 // Pre-route middlewares
 require("./middlewares/pre-route.middleware")(app);
 
-// app.get("/", (req, res) => {
-//     return res
-//         .status(200)
-//         .json({ message: "Hello world from Haikoto Backend!" });
-// });
+app.get("/", (req, res) => {
+    return res
+        .status(200)
+        .json({ message: "Hello world from Haikoto Backend!" });
+});
 
 // API routes
 app.use("/api", require("./routes"));
@@ -21,7 +21,7 @@ const PORT = process.env.PORT || 4000;
 // Listen to server port
 app.listen(PORT, async () => {
     // Initialize MongoDB connection
-    // require("./database");
+    require("./database");
 
     console.log(
         `:::> Server listening on port ${PORT} @ http://localhost:${PORT}`
