@@ -17,6 +17,11 @@ class GameContoller {
         res.status(200).send(response("Game data", result));
     }
 
+    async endGame(req, res) {
+        const result = await GameService.endGame(req.params.gameId, req.body);
+        res.status(200).send(response("Game Ended", result));
+    }
+
     async getAllByUser(req, res) {
         const result = await GameService.getAllByUser(req.$user);
         res.status(200).send(

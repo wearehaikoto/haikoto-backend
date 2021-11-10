@@ -51,6 +51,20 @@ class GameService {
         return game;
     }
 
+    async endGame(gameId, data) {
+        if (!data.answers) throw new CustomError("Answers are required");
+
+        const game = await Game.findOneAndUpdate(
+            { _id: gameId },
+            { $set: data },
+            { new: true }
+        ).populate("userId cards", "-__v");
+
+        if (!game) throw new CustomError("Game does not exist");
+
+        return game;
+    }
+
     // Get All Games in the Database By User
     async getAllByUser(user) {
         return await Game.find({ userId: user._id }, { __v: 0 }).populate(
