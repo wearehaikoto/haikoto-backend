@@ -5,14 +5,15 @@ const GameCtrl = require("../controllers/game.controller.js");
 // @route   GET /api/game/
 router.get("/", authGuard(), GameCtrl.getAll);
 
+// @route   GET /api/game/me
+router.get("/me", authGuard(), GameCtrl.getAllByUser);
+
 // @route   GET /api/game/:gameId
 router.get("/:gameId", authGuard(), GameCtrl.getOne);
 
 // @route   GET /api/game/:gameId/end
 router.post("/:gameId/end", authGuard(), GameCtrl.endGame);
 
-// @route   GET /api/game/me
-router.get("/me", authGuard(), GameCtrl.getAllByUser);
 
 // @route   POST /api/game/create
 router.post("/create", authGuard(), GameCtrl.create);
