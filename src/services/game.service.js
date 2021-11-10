@@ -14,7 +14,7 @@ class GameService {
         const cards = await Card.find({}).limit(data.numberOfCards).size();
         if (cards.length < data.numberOfCards)
             throw new CustomError(
-                "Sorry we don't have any cards in the database"
+                `Sorry we don't have up to ${data.numberOfCards} cards in the database yet`
             );
 
         // Get random cards
