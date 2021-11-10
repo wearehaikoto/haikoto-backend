@@ -12,7 +12,7 @@ class GameService {
 
         // Check if cards are available in the database
         const cards = await Card.find({}).limit(data.numberOfCards).size();
-        if (cards.length < numberOfCards)
+        if (cards.length < data.numberOfCards)
             throw new CustomError(
                 "Sorry we don't have any cards in the database"
             );
@@ -24,7 +24,10 @@ class GameService {
         ]);
 
         // Create Game with random cards
-        return await new Game({ userId: user._id, cards: randomCards }).save();
+        const game = await new Game({ userId: user._id, cards: randomCards }).save();
+
+        // Return Cards populated
+        return await game.populate("cards");
     }
 
     // Get All Games in the Database
