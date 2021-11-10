@@ -17,15 +17,10 @@ const GameSchema = new mongoose.Schema(
             ],
             required: true
         },
-        answers: {
-            type: [
-                {
-                    type: Array || Boolean,
-                    required: true
-                }
-            ],
+        answers: [{
+            type: [Boolean, String],
             required: false
-        }
+        }]
     },
     {
         timestamps: true
