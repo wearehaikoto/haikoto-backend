@@ -12,6 +12,11 @@ class CardContoller {
         res.status(200).send(response("All Cards", result));
     }
 
+    async getOne(req, res) {
+        const result = await CardService.getOne(req.params.cardId);
+        res.status(200).send(response("Card data", result));
+    }
+
     async getAllByUser(req, res) {
         const result = await CardService.getAllByUser(req.$user);
         res.status(200).send(

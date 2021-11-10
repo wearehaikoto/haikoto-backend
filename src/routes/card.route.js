@@ -5,6 +5,9 @@ const CardCtrl = require("../controllers/card.controller.js");
 // @route   GET /api/card/
 router.get("/", authGuard(), CardCtrl.getAll);
 
+// @route   GET /api/card/:cardId
+router.get("/:cardId", authGuard(), CardCtrl.getOne);
+
 // @route   GET /api/card/me
 router.get("/me", authGuard(), CardCtrl.getAllByUser);
 

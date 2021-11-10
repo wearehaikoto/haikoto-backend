@@ -13,7 +13,20 @@ class CardService {
     }
 
     async getAll() {
-        return await Card.find({}, { __v: 0 }).populate("userId", "_id codeName");
+        return await Card.find({}, { __v: 0 }).populate(
+            "userId",
+            "_id codeName"
+        );
+    }
+
+    async getOne(cardId) {
+        const card = await Card.findOne({ _id: cardId }).populate(
+            "userId",
+            "_id codeName"
+        );
+        if (!card) throw new CustomError("Card does not exist");
+
+        return card;
     }
 
     async getAllByUser(user) {

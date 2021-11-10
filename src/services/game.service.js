@@ -24,7 +24,10 @@ class GameService {
         ]);
 
         // Create Game with random cards
-        const game = await new Game({ userId: user._id, cards: randomCards }).save();
+        const game = await new Game({
+            userId: user._id,
+            cards: randomCards
+        }).save();
 
         // Return Cards populated
         return await game.populate("cards");
@@ -36,6 +39,16 @@ class GameService {
             "userId cards",
             "-userId -__v"
         );
+    }
+
+    async getOne(gameId) {
+        const game = await Game.findOne({ _id: gameId }).populate(
+            "userId cards",
+            "-__v"
+        );
+        if (!game) throw new CustomError("Game does not exist");
+
+        return game;
     }
 
     // Get All Games in the Database By User
