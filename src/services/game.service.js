@@ -1,7 +1,7 @@
 const Game = require("./../models/game.model");
 const Card = require("./../models/card.model");
 const CustomError = require("./../utils/custom-error");
-const response = require("./../utils/response");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 class GameService {
     // Create Game
@@ -42,6 +42,8 @@ class GameService {
     }
 
     async getOne(gameId) {
+        if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
+
         const game = await Game.findOne({ _id: gameId }).populate(
             "userId cards",
             "-__v"

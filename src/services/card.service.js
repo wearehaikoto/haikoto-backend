@@ -1,5 +1,6 @@
 const Card = require("./../models/card.model");
 const CustomError = require("./../utils/custom-error");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 class CardService {
     // Create Card
@@ -20,6 +21,8 @@ class CardService {
     }
 
     async getOne(cardId) {
+        if (!ObjectId.isValid(cardId)) throw new CustomError("Card does not exist");
+
         const card = await Card.findOne({ _id: cardId }).populate(
             "userId",
             "_id codeName"
