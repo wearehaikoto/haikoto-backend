@@ -11,9 +11,11 @@ router.get("/me", authGuard(), GameCtrl.getAllByUser);
 // @route   GET /api/game/:gameId
 router.get("/:gameId", authGuard(), GameCtrl.getOne);
 
-// @route   GET /api/game/:gameId/end
-router.post("/:gameId/end", authGuard(), GameCtrl.endGame);
+// @route   GET /api/game/:gameId
+router.get("/:gameId", authGuard(), GameCtrl.getOne);
 
+// @route   GET /api/game/:gameId/addAnswer
+router.post("/:gameId/addAnswer", authGuard(), GameCtrl.addAnswer);
 
 // @route   POST /api/game/create
 router.post("/create", authGuard(), GameCtrl.create);

@@ -64,12 +64,12 @@ class GameService {
         return game;
     }
 
-    async endGame(gameId, data) {
-        if (!data.answers) throw new CustomError("Answers are required");
+    async addAnswer(gameId, data) {
+        if (data.answer === undefined) throw new CustomError("Answer is required");
 
         const game = await Game.findOneAndUpdate(
             { _id: gameId },
-            { $set: data },
+            { $push: { answers: data.answer } },
             { new: true }
         ).populate("userId cards", "-__v");
 
