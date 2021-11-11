@@ -6,20 +6,30 @@ const ObjectId = require("mongoose").Types.ObjectId;
 class GameService {
     // Create Game
     async create(data, user) {
-        // Validation check
-        if (!data.numberOfCards)
-            throw new CustomError("Number of Cards is required");
+        // Logic to play game with a number of cards specified by user
+        // // Validation check
+        // if (!data.numberOfCards) throw new CustomError("Number of Cards is required");
 
-        // Check if cards are available in the database
-        const cards = await Card.find({}).limit(data.numberOfCards).size();
-        if (cards.length < data.numberOfCards)
-            throw new CustomError(
-                `Sorry we don't have up to ${data.numberOfCards} cards in the database yet`
-            );
+        // // Check if cards are available in the database
+        // const cards = await Card.find({}).limit(data.numberOfCards).size();
+        // if (cards.length < data.numberOfCards)
+        //     throw new CustomError(
+        //         `Sorry we don't have up to ${data.numberOfCards} cards in the database yet`
+        //     );
+
+        // // Get random cards
+        // const randomCards = await Card.aggregate([
+        //     { $sample: { size: data.numberOfCards } },
+        //     { $project: { _id: 1 } }
+        // ]);
+
+        // Logic to get all cards in the db for a game in random order
+        // Get number of cards available in the database
+        const cards = await Card.find({}).count();
 
         // Get random cards
         const randomCards = await Card.aggregate([
-            { $sample: { size: data.numberOfCards } },
+            { $sample: { size: cards } },
             { $project: { _id: 1 } }
         ]);
 
@@ -42,7 +52,8 @@ class GameService {
     }
 
     async getOne(gameId) {
-        if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
+        if (!ObjectId.isValid(gameId))
+            throw new CustomError("Game does not exist");
 
         const game = await Game.findOne({ _id: gameId }).populate(
             "userId cards",
