@@ -29,6 +29,7 @@ class GameService {
 
     // Get random cards
     const randomCards = await Card.aggregate([
+      { $match: { isDeleted: false } },
       { $sample: { size: cards } },
       { $project: { _id: 1 } }
     ]);
