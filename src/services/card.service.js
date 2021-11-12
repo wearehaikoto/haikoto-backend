@@ -19,6 +19,10 @@ class CardService {
     );
   }
 
+  async getAllCategories() {
+    return await Card.distinct("cardCategory");
+  }
+
   async getOne(cardId) {
     if (!ObjectId.isValid(cardId)) throw new CustomError("Card does not exist");
 

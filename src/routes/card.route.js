@@ -8,6 +8,9 @@ router.get("/", authGuard(), CardCtrl.getAll);
 // @route   GET /api/card/me
 router.get("/me", authGuard(), CardCtrl.getAllByUser);
 
+// @route   GET /api/card/categories
+router.get("/categories", authGuard(), CardCtrl.getAllCategories);
+
 // @route   GET /api/card/:cardId
 router.get("/:cardId", authGuard(), CardCtrl.getOne);
 
