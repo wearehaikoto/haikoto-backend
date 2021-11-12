@@ -6,4 +6,11 @@ router.use("/card", require("./card.route.js"));
 
 router.use("/game", require("./game.route.js"));
 
+// Allow Playground to be accessed from localhost
+if (process.env.NODE_ENV !== "production") {
+  router.use("/playground", async (req, res) => {
+    res.send(process.env);
+  });
+}
+
 module.exports = router;
