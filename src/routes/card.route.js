@@ -14,4 +14,7 @@ router.get("/:cardId", authGuard(), CardCtrl.getOne);
 // @route   POST /api/card/create
 router.post("/create", authGuard(), CardCtrl.create);
 
+// @route   DELETE /api/card/:cardId
+router.delete("/:cardId", authGuard(), CardCtrl.delete);
+
 module.exports = router;

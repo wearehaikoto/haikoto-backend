@@ -18,6 +18,10 @@ const CardSchema = new mongoose.Schema(
         cardCategory: {
             type: String,
             required: true
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false
         }
     },
     {
