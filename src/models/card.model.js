@@ -22,6 +22,10 @@ const CardSchema = new mongoose.Schema(
         isDeleted: {
             type: Boolean,
             default: false
+        },
+        eloRating: {
+            type: Number,
+            default: 1500
         }
     },
     {

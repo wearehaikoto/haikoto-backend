@@ -17,6 +17,9 @@ router.get("/:cardId", authGuard(), CardCtrl.getOne);
 // @route   POST /api/card/create
 router.post("/create", authGuard(), CardCtrl.create);
 
+// @route   PUT /api/card/elo_rating_update
+router.put("/elo_rating_update", authGuard(), CardCtrl.eloRatingUpdate);
+
 // @route   DELETE /api/card/:cardId
 router.delete("/:cardId", authGuard(), CardCtrl.delete);
 

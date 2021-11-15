@@ -1,4 +1,5 @@
 const Card = require("./../models/card.model");
+const EloRatingAlgorithm = require("../utils/elo-rating-algorithm");
 const CustomError = require("./../utils/custom-error");
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -37,6 +38,26 @@ class CardService {
 
   async getAllByUser(user) {
     return await Card.find({ userId: user._id, isDeleted: false }, { __v: 0 });
+  }
+
+  async eloRatingUpdate(data) {
+    if (!data.winner || !ObjectId.isValid(data.winner)) throw new CustomError("Valid Card Winner is required");
+    if (!data.loser || !ObjectId.isValid(data.loser)) throw new CustomError("Valid Card Loser is required");
+
+    const winner = await Card.findOne({ _id: data.winner });
+    const loser = await Card.findOne({ _id: data.loser });
+
+    const new_elo_for_winner_card = EloRatingAlgorithm.getNewRating(winner.eloRating, loser.eloRating, 1);
+    const new_elo_for_loser_card = EloRatingAlgorithm.getNewRating(loser.eloRating, winner.eloRating, 0);
+
+    // Update winner card and loser card
+    await Card.findOneAndUpdate({ _id: data.winner }, { eloRating: new_elo_for_winner_card });
+    await Card.findOneAndUpdate({ _id: data.loser }, { eloRating: new_elo_for_loser_card });
+
+    return {
+      winner: new_elo_for_winner_card,
+      loser: new_elo_for_loser_card
+    }
   }
 
   async delete(cardId) {
