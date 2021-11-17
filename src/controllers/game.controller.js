@@ -21,7 +21,7 @@ class GameContoller {
         const result = await GameService.addNoCard(req.params.gameId, req.body);
         res.status(200).send(response("no card added", result));
     }
-    
+
     async addYesCard(req, res) {
         const result = await GameService.addYesCard(req.params.gameId, req.body);
         res.status(200).send(response("yes card added", result));
