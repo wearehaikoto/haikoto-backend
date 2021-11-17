@@ -47,7 +47,7 @@ class GameService {
   // Get All Games in the Database
   async getAll() {
     return await Game.find({}, { __v: 0 }).populate(
-      "userId cards",
+      "userId cards noCards yesCards",
       "-userId -__v"
     );
   }
@@ -56,7 +56,7 @@ class GameService {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
     const game = await Game.findOne({ _id: gameId }).populate(
-      "userId cards",
+      "userId cards noCards yesCards",
       "-__v"
     );
     if (!game) throw new CustomError("Game does not exist");
@@ -64,14 +64,42 @@ class GameService {
     return game;
   }
 
-  async addAnswer(gameId, data) {
-    if (data.answer === undefined) throw new CustomError("Answer is required");
+  async addNoCard(gameId, data) {
+    if (!data.cardId) throw new CustomError("Card Id is required");
 
     const game = await Game.findOneAndUpdate(
       { _id: gameId },
-      { $push: { answers: data.answer } },
+      { $push: { noCards: data.cardId } },
       { new: true }
-    ).populate("userId cards", "-__v");
+    ).populate("userId cards noCards yesCards", "-__v");
+
+    if (!game) throw new CustomError("Game does not exist");
+
+    return game;
+  }
+  
+  async addYesCard(gameId, data) {
+    if (!data.cardId) throw new CustomError("Card Id is required");
+
+    const game = await Game.findOneAndUpdate(
+      { _id: gameId },
+      { $push: { yesCards: data.cardId } },
+      { new: true }
+    ).populate("userId cards noCards yesCards", "-__v");
+
+    if (!game) throw new CustomError("Game does not exist");
+
+    return game;
+  }
+
+  async updateYesCards(gameId, data) {
+    if (!data.cardIds) throw new CustomError("card Ids are required");
+
+    const game = await Game.findOneAndUpdate(
+      { _id: gameId },
+      { $set: { yesCards: data.cardIds } },
+      { new: true }
+    ).populate("userId cards noCards yesCards", "-__v");
 
     if (!game) throw new CustomError("Game does not exist");
 
@@ -81,7 +109,7 @@ class GameService {
   // Get All Games in the Database By User
   async getAllByUser(user) {
     return await Game.find({ userId: user._id }, { __v: 0 }).populate(
-      "cards",
+      "cards noCards yesCards",
       "-userId -__v"
     );
   }

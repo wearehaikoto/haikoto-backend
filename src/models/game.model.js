@@ -17,10 +17,26 @@ const GameSchema = new mongoose.Schema(
             ],
             required: true
         },
-        answers: [{
-            type: [Boolean, String],
-            required: false
-        }]
+        yesCards: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true,
+                    ref: "Card"
+                }
+            ],
+            required: true
+        },
+        noCards: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true,
+                    ref: "Card"
+                }
+            ],
+            required: true
+        },
     },
     {
         timestamps: true

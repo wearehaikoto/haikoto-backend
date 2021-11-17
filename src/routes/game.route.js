@@ -14,10 +14,17 @@ router.get("/:gameId", authGuard(), GameCtrl.getOne);
 // @route   GET /api/game/:gameId
 router.get("/:gameId", authGuard(), GameCtrl.getOne);
 
-// @route   GET /api/game/:gameId/addAnswer
-router.post("/:gameId/addAnswer", authGuard(), GameCtrl.addAnswer);
 
 // @route   POST /api/game/create
 router.post("/create", authGuard(), GameCtrl.create);
+
+// @route   GET /api/game/:gameId/addNoCard
+router.post("/:gameId/addNoCard", authGuard(), GameCtrl.addNoCard);
+
+// @route   GET /api/game/:gameId/addYesCard
+router.post("/:gameId/addYesCard", authGuard(), GameCtrl.addYesCard);
+
+// @route   GET /api/game/:gameId/updateYesCards
+router.post("/:gameId/updateYesCards", authGuard(), GameCtrl.updateYesCards);
 
 module.exports = router;
