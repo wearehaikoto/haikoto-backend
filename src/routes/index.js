@@ -13,7 +13,7 @@ router.use("/game", require("./game.route.js"));
 // Allow Playground to be accessed from localhost
 if (process.env.NODE_ENV !== "production") {
   router.use("/playground", async (req, res) => {
-    return res.json({ "Hii": "Hii" });
+    return res.json({  });
   });
 }
 
