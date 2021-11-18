@@ -37,6 +37,10 @@ const GameSchema = new mongoose.Schema(
             ],
             required: true
         },
+        eloScores: [{
+            type: [Number],
+            required: false
+        }]
     },
     {
         timestamps: true
