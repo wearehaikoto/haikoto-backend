@@ -1,26 +1,27 @@
+const { role } = require("../config");
 const router = require("express").Router();
 const authGuard = require("../middlewares/auth.middleware");
 const CardCtrl = require("../controllers/card.controller.js");
 
 // @route   GET /api/card/
-router.get("/", authGuard(), CardCtrl.getAll);
+router.get("/", authGuard(role.USER), CardCtrl.getAll);
 
 // @route   GET /api/card/me
-router.get("/me", authGuard(), CardCtrl.getAllByUser);
+router.get("/me", authGuard(role.USER), CardCtrl.getAllByUser);
 
 // @route   GET /api/card/hashtags
-router.get("/hashtags", authGuard(), CardCtrl.getAllHashtags);
+router.get("/hashtags", authGuard(role.USER), CardCtrl.getAllHashtags);
 
 // @route   GET /api/card/:cardId
-router.get("/:cardId", authGuard(), CardCtrl.getOne);
+router.get("/:cardId", authGuard(role.USER), CardCtrl.getOne);
 
 // @route   POST /api/card/create
-router.post("/create", authGuard(), CardCtrl.create);
+router.post("/create", authGuard(role.USER), CardCtrl.create);
 
 // @route   PUT /api/card/elo_rating_update
-// router.put("/elo_rating_update", authGuard(), CardCtrl.eloRatingUpdate);
+// router.put("/elo_rating_update", authGuard(role.USER), CardCtrl.eloRatingUpdate);
 
 // @route   DELETE /api/card/:cardId
-router.delete("/:cardId", authGuard(), CardCtrl.delete);
+router.delete("/:cardId", authGuard(role.USER), CardCtrl.delete);
 
 module.exports = router;
