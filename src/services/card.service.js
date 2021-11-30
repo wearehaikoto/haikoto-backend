@@ -8,7 +8,10 @@ class CardService {
   async create(data, user) {
     if (!data.cardTitle) throw new CustomError("Card Title is required");
     if (!data.cardImage) throw new CustomError("Card Image is required");
-    if (!data.cardCategory) throw new CustomError("Card Category is required");
+    if (!data.cardHashtags) throw new CustomError("Card Hashtag is required");
+
+    // Trim and lowercase cardHashtags
+    data.cardHashtags = data.cardHashtags.map(hashtag => hashtag.trim().toLowerCase());
 
     return await new Card({ userId: user._id, ...data }).save();
   }
@@ -20,8 +23,8 @@ class CardService {
     );
   }
 
-  async getAllCategories() {
-    return await Card.distinct("cardCategory");
+  async getAllHashtags() {
+    return await Card.distinct("cardHashtags");
   }
 
   async getOne(cardId) {

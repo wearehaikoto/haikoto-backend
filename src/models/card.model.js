@@ -15,8 +15,8 @@ const CardSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        cardCategory: {
-            type: String,
+        cardHashtags: {
+            type: [String],
             required: true
         },
         isDeleted: {

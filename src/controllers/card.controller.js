@@ -12,9 +12,9 @@ class CardContoller {
     res.status(200).send(response("All Cards", result));
   }
 
-  async getAllCategories(req, res) {
-    const result = await CardService.getAllCategories();
-    res.status(200).send(response("All Cards Category", result));
+  async getAllHashtags(req, res) {
+    const result = await CardService.getAllHashtags();
+    res.status(200).send(response("All Cards Hashtags", result));
   }
 
   async getOne(req, res) {
