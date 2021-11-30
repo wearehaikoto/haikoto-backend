@@ -69,7 +69,7 @@ class GameService {
 
     const game = await Game.findOneAndUpdate(
       { _id: gameId },
-      { $push: { noCards: data.cardId } },
+      { $push: { noCards: { $each: [data.cardId], $position: 0 } } },
       { new: true }
     ).populate("userId cards noCards yesCards", "-__v");
 
@@ -83,7 +83,12 @@ class GameService {
 
     const game = await Game.findOneAndUpdate(
       { _id: gameId },
-      { $push: { yesCards: data.cardId, eloScores: 1500 } },
+      {
+        $push: {
+          yesCards: { $each: [data.cardId], $position: 0 },
+          eloScores: 1500
+        }
+      },
       { new: true }
     ).populate("userId cards noCards yesCards", "-__v");
 
@@ -94,7 +99,8 @@ class GameService {
 
   async updateYesCards(gameId, data) {
     if (!data.cardIds) throw new CustomError("card Ids are required");
-    if (!data.eloScores) throw new CustomError("Elo Rating Scores are required");
+    if (!data.eloScores)
+      throw new CustomError("Elo Rating Scores are required");
 
     const game = await Game.findOneAndUpdate(
       { _id: gameId },
