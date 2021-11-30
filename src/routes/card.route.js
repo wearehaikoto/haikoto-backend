@@ -4,7 +4,7 @@ const authGuard = require("../middlewares/auth.middleware");
 const CardCtrl = require("../controllers/card.controller.js");
 
 // @route   GET /api/card/
-router.get("/", authGuard(role.USER), CardCtrl.getAll);
+router.get("/", authGuard(role.ADMIN), CardCtrl.getAll);
 
 // @route   GET /api/card/me
 router.get("/me", authGuard(role.USER), CardCtrl.getAllByUser);
