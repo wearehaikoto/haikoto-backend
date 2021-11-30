@@ -16,6 +16,20 @@ class UserService {
     return user;
   }
 
+  async updateRole(userId, data) {
+    if (!data.role) throw new CustomError("User Role is required");
+    if (!ObjectId.isValid(userId)) throw new CustomError("User does not exist");
+
+    const user = await User.findOneAndUpdate(
+      { _id: userId },
+      { role: data.role },
+      { new: true }
+    );
+    if (!user) throw new CustomError("User does not exist");
+
+    return user;
+  }
+
   async delete(userId) {
     if (!ObjectId.isValid(userId)) throw new CustomError("User does not exist");
 
