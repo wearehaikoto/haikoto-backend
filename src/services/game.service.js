@@ -33,22 +33,22 @@ class GameService {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
     const game = await Game.findOne({ _id: gameId }).populate(
-      "userId noCards yesCards",
+      "userId leftSwipedCards rightSwipedCards",
       "-__v"
     );
     if (!game) throw new CustomError("Game does not exist");
 
-    // Extract #hashtags from yesCards
-    const yesCardsHashtags = [];
-    game.yesCards.forEach(card => card.hashtags.forEach(hashtag => yesCardsHashtags.push(hashtag)));
+    // Extract #hashtags from rightSwipedCards
+    const rightSwipedCardsHashtags = [];
+    game.rightSwipedCards.forEach(card => card.hashtags.forEach(hashtag => rightSwipedCardsHashtags.push(hashtag)));
 
-    // Extract #hashtags from noCards
-    const noCardsHashtags = [];
-    game.noCards.forEach(card => card.hashtags.forEach(hashtag => noCardsHashtags.push(hashtag)));
+    // Extract #hashtags from leftSwipedCards
+    const leftSwipedCardsHashtags = [];
+    game.leftSwipedCards.forEach(card => card.hashtags.forEach(hashtag => leftSwipedCardsHashtags.push(hashtag)));
 
-    // Get a random card from the database that does not have any of the same hashtags as the noCards and has not been used in the game
+    // Get a random card from the database that does not have any of the same hashtags as the leftSwipedCards and has not been used in the game
     const newRandomCard = await Card.aggregate([
-      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: noCardsHashtags } } },
+      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: leftSwipedCardsHashtags } } },
       { $sample: { size: 1 } },
     ]);
 
@@ -70,7 +70,7 @@ class GameService {
   // Get All Games in the Database
   async getAll() {
     return await Game.find({}, { __v: 0 }).populate(
-      "userId cards noCards yesCards",
+      "userId cards leftSwipedCards rightSwipedCards",
       "-userId -__v"
     );
   }
@@ -80,21 +80,21 @@ class GameService {
 
     const game = await Game.findOne({ _id: gameId }).populate(
       "userId", "codeName"
-    ).populate({ path: "cards noCards yesCards", populate: { path: "hashtags", }, });
+    ).populate({ path: "cards leftSwipedCards rightSwipedCards", populate: { path: "hashtags", }, });
 
     if (!game) throw new CustomError("Game does not exist");
 
     return game;
   }
 
-  async addNoCard(gameId, data) {
+  async addLeftSwipedCard(gameId, data) {
     if (!data.cardId) throw new CustomError("Card Id is required");
 
     const game = await Game.findOneAndUpdate(
       { _id: gameId },
-      { $push: { noCards: { $each: [data.cardId], $position: 0 } } },
+      { $push: { leftSwipedCards: { $each: [data.cardId], $position: 0 } } },
       { new: true }
-    ).populate("userId cards noCards yesCards", "-__v");
+    ).populate("userId cards leftSwipedCards rightSwipedCards", "-__v");
 
     if (!game) throw new CustomError("Game does not exist");
 
@@ -108,28 +108,28 @@ class GameService {
       { _id: gameId },
       {
         $push: {
-          yesCards: { $each: [data.cardId], $position: 0 },
+          rightSwipedCards: { $each: [data.cardId], $position: 0 },
           eloScores: 1500
         }
       },
       { new: true }
-    ).populate("userId cards noCards yesCards", "-__v");
+    ).populate("userId cards leftSwipedCards rightSwipedCards", "-__v");
 
     if (!game) throw new CustomError("Game does not exist");
 
     return game;
   }
 
-  async updateYesCards(gameId, data) {
+  async updateRightSwipedCards(gameId, data) {
     if (!data.cardIds) throw new CustomError("card Ids are required");
     if (!data.eloScores)
       throw new CustomError("Elo Rating Scores are required");
 
     const game = await Game.findOneAndUpdate(
       { _id: gameId },
-      { $set: { yesCards: data.cardIds, eloScores: data.eloScores } },
+      { $set: { rightSwipedCards: data.cardIds, eloScores: data.eloScores } },
       { new: true }
-    ).populate("userId cards noCards yesCards", "-__v");
+    ).populate("userId cards leftSwipedCards rightSwipedCards", "-__v");
 
     if (!game) throw new CustomError("Game does not exist");
 
@@ -139,7 +139,7 @@ class GameService {
   // Get All Games in the Database By User
   async getAllByUser(user) {
     return await Game.find({ userId: user._id }, { __v: 0 }).populate(
-      "cards noCards yesCards",
+      "cards leftSwipedCards rightSwipedCards",
       "-userId -__v"
     );
   }
