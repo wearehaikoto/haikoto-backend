@@ -37,6 +37,26 @@ const GameSchema = new mongoose.Schema(
             ],
             required: true
         },
+        rightSwipedHashtags: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true,
+                    ref: "hashtag"
+                }
+            ],
+            required: true
+        },
+        leftSwipedHashtags: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true,
+                    ref: "hashtag"
+                }
+            ],
+            required: true
+        },
     },
     {
         timestamps: true

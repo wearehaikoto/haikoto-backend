@@ -24,6 +24,12 @@ router.put("/:gameId/addLeftSwipedCard", authGuard(role.USER), GameCtrl.addLeftS
 // @route   PUT /api/game/:gameId/addRightSwipedCard
 router.put("/:gameId/addRightSwipedCard", authGuard(role.USER), GameCtrl.addRightSwipedCard);
 
+// @route   PUT /api/game/:gameId/addLeftSwipedHashtag
+router.put("/:gameId/addLeftSwipedHashtag", authGuard(role.USER), GameCtrl.addLeftSwipedHashtag);
+
+// @route   PUT /api/game/:gameId/addRightSwipedHashtag
+router.put("/:gameId/addRightSwipedHashtag", authGuard(role.USER), GameCtrl.addRightSwipedHashtag);
+
 // @route   PATCH /api/game/:gameId/updateRightSwipedCards
 router.patch("/:gameId/updateRightSwipedCards", authGuard(role.USER), GameCtrl.updateRightSwipedCards );
 

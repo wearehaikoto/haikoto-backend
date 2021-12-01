@@ -32,6 +32,16 @@ class GameContoller {
         res.status(200).send(response("rightSwiped card added", result));
     }
 
+    async addLeftSwipedHashtag(req, res) {
+        const result = await GameService.addLeftSwipedHashtag(req.params.gameId, req.body);
+        res.status(200).send(response("leftSwiped hashtag added", result));
+    }
+
+    async addRightSwipedHashtag(req, res) {
+        const result = await GameService.addRightSwipedHashtag(req.params.gameId, req.body);
+        res.status(200).send(response("rightSwiped hashtag added", result));
+    }
+
     async updateRightSwipedCards(req, res) {
         const result = await GameService.updateRightSwipedCards(req.params.gameId, req.body);
         res.status(200).send(response("rightSwiped cards updated", result));

@@ -4,7 +4,6 @@ const CustomError = require("./../utils/custom-error");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 class GameService {
-  // Create Game
   async create(data, user) {
     // Check at least 1 card is available in the database.
     const cardsCount = await Card.find({}).limit(1).size();
@@ -28,7 +27,6 @@ class GameService {
     return await game.populate({ path: "cards", populate: { path: "hashtags", }, });
   }
 
-  // New Card
   async newCard(gameId) {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
@@ -38,17 +36,9 @@ class GameService {
     );
     if (!game) throw new CustomError("Game does not exist");
 
-    // Extract #hashtags from rightSwipedCards
-    const rightSwipedCardsHashtags = [];
-    game.rightSwipedCards.forEach(card => card.hashtags.forEach(hashtag => rightSwipedCardsHashtags.push(hashtag)));
-
-    // Extract #hashtags from leftSwipedCards
-    const leftSwipedCardsHashtags = [];
-    game.leftSwipedCards.forEach(card => card.hashtags.forEach(hashtag => leftSwipedCardsHashtags.push(hashtag)));
-
-    // Get a random card from the database that does not have any of the same hashtags as the leftSwipedCards and has not been used in the game
+    // Get a random card from the database that does not have any of the same hashtags as the leftSwipedHashtags and has not been used in the game
     const newRandomCard = await Card.aggregate([
-      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: leftSwipedCardsHashtags } } },
+      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: game.leftSwipedHashtags } } },
       { $sample: { size: 1 } },
     ]);
 
@@ -67,7 +57,6 @@ class GameService {
     };
   }
 
-  // Get All Games in the Database
   async getAll() {
     return await Game.find({}, { __v: 0 }).populate(
       "userId cards leftSwipedCards rightSwipedCards",
@@ -94,14 +83,14 @@ class GameService {
       { _id: gameId },
       { $push: { leftSwipedCards: { $each: [data.cardId], $position: 0 } } },
       { new: true }
-    ).populate("userId cards leftSwipedCards rightSwipedCards", "-__v");
+    );
 
     if (!game) throw new CustomError("Game does not exist");
 
     return game;
   }
 
-  async addYesCard(gameId, data) {
+  async addRightSwipedCard(gameId, data) {
     if (!data.cardId) throw new CustomError("Card Id is required");
 
     const game = await Game.findOneAndUpdate(
@@ -113,7 +102,35 @@ class GameService {
         }
       },
       { new: true }
-    ).populate("userId cards leftSwipedCards rightSwipedCards", "-__v");
+    );
+
+    if (!game) throw new CustomError("Game does not exist");
+
+    return game;
+  }
+
+  async addLeftSwipedHashtag(gameId, data) {
+    if (!data.hashtagId) throw new CustomError("Hashtag Id is required");
+
+    const game = await Game.findOneAndUpdate(
+      { _id: gameId },
+      { $push: { leftSwipedHashtags: data.cardId } },
+      { new: true }
+    );
+
+    if (!game) throw new CustomError("Game does not exist");
+
+    return game;
+  }
+
+  async addRightSwipedHashtag(gameId, data) {
+    if (!data.hashtagId) throw new CustomError("Hashtag Id is required");
+
+    const game = await Game.findOneAndUpdate(
+      { _id: gameId },
+      { $push: { rightSwipedHashtags: data.cardId } },
+      { new: true }
+    );
 
     if (!game) throw new CustomError("Game does not exist");
 
@@ -129,14 +146,13 @@ class GameService {
       { _id: gameId },
       { $set: { rightSwipedCards: data.cardIds, eloScores: data.eloScores } },
       { new: true }
-    ).populate("userId cards leftSwipedCards rightSwipedCards", "-__v");
+    );
 
     if (!game) throw new CustomError("Game does not exist");
 
     return game;
   }
 
-  // Get All Games in the Database By User
   async getAllByUser(user) {
     return await Game.find({ userId: user._id }, { __v: 0 }).populate(
       "cards leftSwipedCards rightSwipedCards",
