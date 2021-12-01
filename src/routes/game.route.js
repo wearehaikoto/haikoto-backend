@@ -16,15 +16,15 @@ router.get("/:gameId", authGuard(role.USER), GameCtrl.getOne);
 router.get("/:gameId", authGuard(role.USER), GameCtrl.getOne);
 
 // @route   POST /api/game/create
-router.post("/create", authGuard(role.USER), GameCtrl.create);
+router.post("/new", authGuard(role.USER), GameCtrl.create);
 
-// @route   GET /api/game/:gameId/addNoCard
-router.post("/:gameId/addNoCard", authGuard(role.USER), GameCtrl.addNoCard);
+// @route   PUT /api/game/:gameId/addNoCard
+router.put("/:gameId/addNoCard", authGuard(role.USER), GameCtrl.addNoCard);
 
-// @route   GET /api/game/:gameId/addYesCard
-router.post("/:gameId/addYesCard", authGuard(role.USER), GameCtrl.addYesCard);
+// @route   PUT /api/game/:gameId/addYesCard
+router.put("/:gameId/addYesCard", authGuard(role.USER), GameCtrl.addYesCard);
 
-// @route   GET /api/game/:gameId/updateYesCards
-router.post( "/:gameId/updateYesCards", authGuard(role.USER), GameCtrl.updateYesCards );
+// @route   PATCH /api/game/:gameId/updateYesCards
+router.patch("/:gameId/updateYesCards", authGuard(role.USER), GameCtrl.updateYesCards );
 
 module.exports = router;
