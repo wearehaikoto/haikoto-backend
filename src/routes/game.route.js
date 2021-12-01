@@ -18,6 +18,9 @@ router.post("/create", authGuard(role.USER), GameCtrl.create);
 // @route   POST /api/game/:gameId/newCard
 router.post("/:gameId/newCard", authGuard(role.USER), GameCtrl.newCard);
 
+// @route   POST /api/game/:gameId/newCard
+router.post("/:gameId/newHashtag", authGuard(role.USER), GameCtrl.newHashtag);
+
 // @route   PUT /api/game/:gameId/addLeftSwipedCard
 router.put("/:gameId/addLeftSwipedCard", authGuard(role.USER), GameCtrl.addLeftSwipedCard);
 

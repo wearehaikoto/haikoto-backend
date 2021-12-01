@@ -1,30 +1,18 @@
 const Game = require("./../models/game.model");
 const Card = require("./../models/card.model");
+const Hashtag = require("./../models/hashtag.model");
 const CustomError = require("./../utils/custom-error");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 class GameService {
   async create(data, user) {
-    // Check at least 1 card is available in the database.
-    const cardsCount = await Card.find({}).limit(1).size();
-
-    if (cardsCount.length === 0) throw new CustomError("No card in the database");
-
-    // Get a random card from the database
-    const randomCard = await Card.aggregate([
-      { $match: { isDeleted: false } },
-      { $sample: { size: 1 } },
-      { $project: { _id: 1 } }
-    ]);
-
-    // Create Game with random card
+    // Create Game with userId
     const game = await new Game({
       userId: user._id,
-      cards: randomCard
     }).save();
 
     // Return Cards populated
-    return await game.populate({ path: "cards", populate: { path: "hashtags", }, });
+    return await game;
   }
 
   async newCard(gameId) {
@@ -54,6 +42,26 @@ class GameService {
     // Return the new random card
     return {
       newCard: newRandomCard
+    };
+  }
+
+  async newHashtag(gameId) {
+    if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
+
+    const game = await Game.findOne({ _id: gameId });
+    if (!game) throw new CustomError("Game does not exist");
+
+    // Get a random hashtag from the Hashtag model that does not have any of the same hashtags as the leftSwipedHashtags or rightSwipedHashtags
+    const newRandomHashtag = await Hashtag.aggregate([
+      { $match: { isDeleted: false, _id: { $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags) } } },
+      { $sample: { size: 1 } },
+    ]);
+
+    if (newRandomHashtag.length === 0) throw new CustomError("All hashtags have been used");
+
+    // Return the new random hashtag
+    return {
+      newHashtag: newRandomHashtag[0]
     };
   }
 
@@ -114,7 +122,7 @@ class GameService {
 
     const game = await Game.findOneAndUpdate(
       { _id: gameId },
-      { $push: { leftSwipedHashtags: data.cardId } },
+      { $push: { leftSwipedHashtags: data.hashtagId } },
       { new: true }
     );
 
@@ -128,7 +136,7 @@ class GameService {
 
     const game = await Game.findOneAndUpdate(
       { _id: gameId },
-      { $push: { rightSwipedHashtags: data.cardId } },
+      { $push: { rightSwipedHashtags: data.hashtagId } },
       { new: true }
     );
 

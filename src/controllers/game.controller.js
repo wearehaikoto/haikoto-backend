@@ -12,6 +12,11 @@ class GameContoller {
         res.status(200).send(response("new card added successfully", result));
     }
 
+    async newHashtag(req, res) {
+        const result = await GameService.newHashtag(req.params.gameId);
+        res.status(200).send(response("new hashtag added successfully", result));
+    }
+
     async getAll(req, res) {
         const result = await GameService.getAll();
         res.status(200).send(response("all games", result));
