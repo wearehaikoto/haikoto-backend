@@ -1,22 +1,28 @@
 const mongoose = require("mongoose");
 
-const CardSchema = new mongoose.Schema(
+const cardSchema = new mongoose.Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: "User"
+            ref: "user"
         },
-        cardTitle: {
+        title: {
             type: String,
             required: true
         },
-        cardImage: {
+        image: {
             type: String,
             required: true
         },
-        cardHashtags: {
-            type: [String],
+        hashtags: {
+            type: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    required: true,
+                    ref: "hashtag"
+                }
+            ],
             required: true
         },
         isDeleted: {
@@ -34,4 +40,4 @@ const CardSchema = new mongoose.Schema(
 );
 
 // Export the model
-module.exports = mongoose.model("Card", CardSchema);
+module.exports = mongoose.model("card", cardSchema);

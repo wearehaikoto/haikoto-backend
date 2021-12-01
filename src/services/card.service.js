@@ -1,17 +1,18 @@
 const Card = require("./../models/card.model");
+const Hashtag = require("./../models/hashtag.model");
 const EloRatingAlgorithm = require("../utils/elo-rating-algorithm");
 const CustomError = require("./../utils/custom-error");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 class CardService {
-  // Create Card
-  async create(data, user) {
-    if (!data.cardTitle) throw new CustomError("Card Title is required");
-    if (!data.cardImage) throw new CustomError("Card Image is required");
-    if (!data.cardHashtags) throw new CustomError("Card Hashtag is required");
 
-    // Trim and lowercase cardHashtags
-    data.cardHashtags = data.cardHashtags.map(hashtag => hashtag.trim().toLowerCase());
+  async create(data, user) {
+    if (!data.title) throw new CustomError("Card Title is required");
+    if (!data.image) throw new CustomError("Card Image is required");
+    if (!data.hashtags) throw new CustomError("Card Hashtag is required");
+
+    // Trim and lowercase hashtags
+    data.hashtags = data.hashtags.map(hashtag => hashtag.trim().toLowerCase());
 
     return await new Card({ userId: user._id, ...data }).save();
   }
@@ -24,7 +25,7 @@ class CardService {
   }
 
   async getAllHashtags() {
-    return await Card.distinct("cardHashtags");
+    return await Card.distinct("hashtags");
   }
 
   async getOne(cardId) {

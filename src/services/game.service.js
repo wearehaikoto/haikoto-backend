@@ -38,17 +38,17 @@ class GameService {
     );
     if (!game) throw new CustomError("Game does not exist");
 
-    // Extract #cardHashtags from yesCards
+    // Extract #hashtags from yesCards
     const yesCardsHashtags = [];
-    game.yesCards.forEach(card => card.cardHashtags.forEach(hashtag => yesCardsHashtags.push(hashtag)));
+    game.yesCards.forEach(card => card.hashtags.forEach(hashtag => yesCardsHashtags.push(hashtag)));
 
-    // Extract #cardHashtags from noCards
+    // Extract #hashtags from noCards
     const noCardsHashtags = [];
-    game.noCards.forEach(card => card.cardHashtags.forEach(hashtag => noCardsHashtags.push(hashtag)));
+    game.noCards.forEach(card => card.hashtags.forEach(hashtag => noCardsHashtags.push(hashtag)));
 
     // Get a random card from the database that does not have any of the same hashtags as the noCards and has not been used in the game
     const newRandomCard = await Card.aggregate([
-      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, cardHashtags: { $nin: noCardsHashtags } } },
+      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: noCardsHashtags } } },
       { $sample: { size: 1 } },
     ]);
 

@@ -5,14 +5,14 @@ const GameSchema = new mongoose.Schema(
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: "User"
+            ref: "user"
         },
         cards: {
             type: [
                 {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
-                    ref: "Card"
+                    ref: "card"
                 }
             ],
             required: true
@@ -22,7 +22,7 @@ const GameSchema = new mongoose.Schema(
                 {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
-                    ref: "Card"
+                    ref: "card"
                 }
             ],
             required: true
@@ -32,15 +32,11 @@ const GameSchema = new mongoose.Schema(
                 {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
-                    ref: "Card"
+                    ref: "card"
                 }
             ],
             required: true
         },
-        eloScores: [{
-            type: [Number],
-            required: false
-        }]
     },
     {
         timestamps: true

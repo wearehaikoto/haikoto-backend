@@ -1,7 +1,7 @@
 const config = {
   role: {
     USER: ["user", "admin"],
-    ADMIN: ["admin"]
+    ADMIN: ["admin"],
   }
 };
 

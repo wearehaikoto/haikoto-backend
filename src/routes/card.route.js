@@ -9,9 +9,6 @@ router.get("/", authGuard(role.ADMIN), CardCtrl.getAll);
 // @route   GET /api/card/me
 router.get("/me", authGuard(role.USER), CardCtrl.getAllByUser);
 
-// @route   GET /api/card/hashtags
-router.get("/hashtags", authGuard(role.USER), CardCtrl.getAllHashtags);
-
 // @route   GET /api/card/:cardId
 router.get("/:cardId", authGuard(role.USER), CardCtrl.getOne);
 
