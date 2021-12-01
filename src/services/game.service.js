@@ -6,42 +6,62 @@ const ObjectId = require("mongoose").Types.ObjectId;
 class GameService {
   // Create Game
   async create(data, user) {
-    // Logic to play game with a number of cards specified by user
-    // // Validation check
-    // if (!data.numberOfCards) throw new CustomError("Number of Cards is required");
+    // Check at least 1 card is available in the database.
+    const cardsCount = await Card.find({}).limit(1).size();
 
-    // // Check if cards are available in the database
-    // const cards = await Card.find({}).limit(data.numberOfCards).size();
-    // if (cards.length < data.numberOfCards)
-    //     throw new CustomError(
-    //         `Sorry we don't have up to ${data.numberOfCards} cards in the database yet`
-    //     );
+    if (cardsCount.length === 0) throw new CustomError("No card in the database");
 
-    // // Get random cards
-    // const randomCards = await Card.aggregate([
-    //     { $sample: { size: data.numberOfCards } },
-    //     { $project: { _id: 1 } }
-    // ]);
-
-    // Logic to get all cards in the db for a game in random order
-    // Get number of cards available in the database
-    const cards = await Card.find({ isDeleted: false }).count();
-
-    // Get random cards
-    const randomCards = await Card.aggregate([
+    // Get a random card from the database
+    const randomCard = await Card.aggregate([
       { $match: { isDeleted: false } },
-      { $sample: { size: cards } },
+      { $sample: { size: 1 } },
       { $project: { _id: 1 } }
     ]);
 
-    // Create Game with random cards
+    // Create Game with random card
     const game = await new Game({
       userId: user._id,
-      cards: randomCards
+      cards: randomCard
     }).save();
 
     // Return Cards populated
     return await game.populate("cards");
+  }
+
+  // New Card
+  async newCard(gameId) {
+    if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
+
+    const game = await Game.findOne({ _id: gameId }).populate(
+      "userId noCards yesCards",
+      "-__v"
+    );
+    if (!game) throw new CustomError("Game does not exist");
+
+    // Extract #cardHashtags from yesCards
+    const yesCardsHashtags = [];
+    game.yesCards.forEach(card => card.cardHashtags.forEach(hashtag => yesCardsHashtags.push(hashtag)));
+
+    // Extract #cardHashtags from noCards
+    const noCardsHashtags = [];
+    game.noCards.forEach(card => card.cardHashtags.forEach(hashtag => noCardsHashtags.push(hashtag)));
+
+    // Get a random card from the database that does not have any of the same hashtags as the noCards and has not been used in the game
+    const newRandomCard = await Card.aggregate([
+      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, cardHashtags: { $nin: noCardsHashtags } } },
+      { $sample: { size: 1 } },
+    ]);
+
+    if (newRandomCard.length === 0) throw new CustomError("All cards have been used");
+
+    // Add the new card to the game
+    game.cards.push(newRandomCard[0]._id);
+    await game.save();
+
+    // Return the new random card
+    return {
+      newCard: newRandomCard
+    };
   }
 
   // Get All Games in the Database
