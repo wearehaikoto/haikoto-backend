@@ -22,19 +22,19 @@ class GameContoller {
         res.status(200).send(response("game data", result));
     }
 
-    async addNoCard(req, res) {
-        const result = await GameService.addNoCard(req.params.gameId, req.body);
-        res.status(200).send(response("no card added", result));
+    async addLeftSwipedCard(req, res) {
+        const result = await GameService.addLeftSwipedCard(req.params.gameId, req.body);
+        res.status(200).send(response("leftSwiped card added", result));
     }
 
-    async addYesCard(req, res) {
-        const result = await GameService.addYesCard(req.params.gameId, req.body);
-        res.status(200).send(response("yes card added", result));
+    async addRightSwipedCard(req, res) {
+        const result = await GameService.addRightSwipedCard(req.params.gameId, req.body);
+        res.status(200).send(response("rightSwiped card added", result));
     }
 
-    async updateYesCards(req, res) {
-        const result = await GameService.updateYesCards(req.params.gameId, req.body);
-        res.status(200).send(response("yes cards updated", result));
+    async updateRightSwipedCards(req, res) {
+        const result = await GameService.updateRightSwipedCards(req.params.gameId, req.body);
+        res.status(200).send(response("rightSwiped cards updated", result));
     }
 
     async getAllByUser(req, res) {

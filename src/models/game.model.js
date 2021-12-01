@@ -17,7 +17,7 @@ const GameSchema = new mongoose.Schema(
             ],
             required: true
         },
-        yesCards: {
+        rightSwipedCards: {
             type: [
                 {
                     type: mongoose.Schema.Types.ObjectId,
@@ -27,7 +27,7 @@ const GameSchema = new mongoose.Schema(
             ],
             required: true
         },
-        noCards: {
+        leftSwipedCards: {
             type: [
                 {
                     type: mongoose.Schema.Types.ObjectId,

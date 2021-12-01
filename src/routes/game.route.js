@@ -18,13 +18,13 @@ router.post("/create", authGuard(role.USER), GameCtrl.create);
 // @route   POST /api/game/:gameId/newCard
 router.post("/:gameId/newCard", authGuard(role.USER), GameCtrl.newCard);
 
-// @route   PUT /api/game/:gameId/addNoCard
-router.put("/:gameId/addNoCard", authGuard(role.USER), GameCtrl.addNoCard);
+// @route   PUT /api/game/:gameId/addLeftSwipedCard
+router.put("/:gameId/addLeftSwipedCard", authGuard(role.USER), GameCtrl.addLeftSwipedCard);
 
-// @route   PUT /api/game/:gameId/addYesCard
-router.put("/:gameId/addYesCard", authGuard(role.USER), GameCtrl.addYesCard);
+// @route   PUT /api/game/:gameId/addRightSwipedCard
+router.put("/:gameId/addRightSwipedCard", authGuard(role.USER), GameCtrl.addRightSwipedCard);
 
-// @route   PATCH /api/game/:gameId/updateYesCards
-router.patch("/:gameId/updateYesCards", authGuard(role.USER), GameCtrl.updateYesCards );
+// @route   PATCH /api/game/:gameId/updateRightSwipedCards
+router.patch("/:gameId/updateRightSwipedCards", authGuard(role.USER), GameCtrl.updateRightSwipedCards );
 
 module.exports = router;
