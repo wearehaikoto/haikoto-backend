@@ -12,11 +12,8 @@ router.get("/me", authGuard(role.USER), GameCtrl.getAllByUser);
 // @route   GET /api/game/:gameId
 router.get("/:gameId", authGuard(role.USER), GameCtrl.getOne);
 
-// @route   GET /api/game/:gameId
-router.get("/:gameId", authGuard(role.USER), GameCtrl.getOne);
-
 // @route   POST /api/game/create
-router.post("/new", authGuard(role.USER), GameCtrl.create);
+router.post("/create", authGuard(role.USER), GameCtrl.create);
 
 // @route   PUT /api/game/:gameId/addNoCard
 router.put("/:gameId/addNoCard", authGuard(role.USER), GameCtrl.addNoCard);
