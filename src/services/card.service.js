@@ -1,8 +1,8 @@
 const Card = require("./../models/card.model");
-const Hashtag = require("./../models/hashtag.model");
-const EloRatingAlgorithm = require("../utils/elo-rating-algorithm");
-const CustomError = require("./../utils/custom-error");
+const HashtagService = require("./hashtag.service");
 const ObjectId = require("mongoose").Types.ObjectId;
+const CustomError = require("./../utils/custom-error");
+const EloRatingAlgorithm = require("../utils/elo-rating-algorithm");
 
 class CardService {
 
@@ -11,29 +11,25 @@ class CardService {
     if (!data.image) throw new CustomError("Card Image is required");
     if (!data.hashtags) throw new CustomError("Card Hashtag is required");
 
-    // Trim and lowercase hashtags
-    data.hashtags = data.hashtags.map(hashtag => hashtag.trim().toLowerCase());
+    // Get #hashtags ID from database
+    data.hashtags = await Promise.all(data.hashtags.map(async (hashtag) => {
+      const createHashtag = await HashtagService.create({ name: hashtag.trim().toLowerCase() });
+      return createHashtag._id;
+    }));
 
     return await new Card({ userId: user._id, ...data }).save();
   }
 
   async getAll() {
-    return await Card.find({ isDeleted: false }, { __v: 0 }).populate(
-      "userId",
-      "_id codeName"
-    );
-  }
-
-  async getAllHashtags() {
-    return await Card.distinct("hashtags");
+    return await Card.find({ isDeleted: false }, { __v: 0 });
   }
 
   async getOne(cardId) {
     if (!ObjectId.isValid(cardId)) throw new CustomError("Card does not exist");
 
     const card = await Card.findOne({ _id: cardId }).populate(
-      "userId",
-      "_id codeName"
+      "userId hashtags",
+      "_id codeName name"
     );
     if (!card) throw new CustomError("Card does not exist");
 

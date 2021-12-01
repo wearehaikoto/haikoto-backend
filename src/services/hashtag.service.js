@@ -9,7 +9,8 @@ class HashtagService {
 
     // Check if hashtag already exists
     const hashtag = await Hashtag.findOne({ name: data.name });
-    if (hashtag) throw new CustomError("Hashtag already exists");
+  
+    if (hashtag) return hashtag;
 
     return await new Hashtag(data).save();
   }

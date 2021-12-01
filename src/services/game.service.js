@@ -25,7 +25,7 @@ class GameService {
     }).save();
 
     // Return Cards populated
-    return await game.populate("cards");
+    return await game.populate({ path: "cards", populate: { path: "hashtags", }, });
   }
 
   // New Card
@@ -54,6 +54,9 @@ class GameService {
 
     if (newRandomCard.length === 0) throw new CustomError("All cards have been used");
 
+    // Populate the newRandomcard Hashtags
+    await Card.populate(newRandomCard, { path: "hashtags" });
+
     // Add the new card to the game
     game.cards.push(newRandomCard[0]._id);
     await game.save();
@@ -76,9 +79,9 @@ class GameService {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
     const game = await Game.findOne({ _id: gameId }).populate(
-      "userId cards noCards yesCards",
-      "-__v"
-    );
+      "userId", "codeName"
+    ).populate({ path: "cards noCards yesCards", populate: { path: "hashtags", }, });
+
     if (!game) throw new CustomError("Game does not exist");
 
     return game;
