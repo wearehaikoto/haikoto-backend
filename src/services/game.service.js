@@ -26,7 +26,7 @@ class GameService {
 
     // Get a random card from the database that does not have any of the same hashtags as the leftSwipedHashtags but has rightSwipedHashtags and has not been used in the game
     const newRandomCard = await Card.aggregate([
-      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: game.leftSwipedHashtags, $in: game.rightSwipedHashtags } } },
+      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: game.leftSwipedHashtags.toString().split(","), $in: game.rightSwipedHashtags.toString().split(",") } } },
       { $sample: { size: 1 } },
     ]);
 
