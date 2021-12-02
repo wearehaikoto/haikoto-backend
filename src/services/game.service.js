@@ -24,9 +24,9 @@ class GameService {
     );
     if (!game) throw new CustomError("Game does not exist");
 
-    // Get a random card from the database that does not have any of the same hashtags as the leftSwipedHashtags and has not been used in the game
+    // Get a random card from the database that does not have any of the same hashtags as the leftSwipedHashtags but has rightSwipedHashtags and has not been used in the game
     const newRandomCard = await Card.aggregate([
-      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: game.leftSwipedHashtags } } },
+      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: game.leftSwipedHashtags, $in: game.rightSwipedHashtags } } },
       { $sample: { size: 1 } },
     ]);
 
