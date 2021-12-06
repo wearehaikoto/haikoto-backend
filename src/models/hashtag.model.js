@@ -7,11 +7,6 @@ const hashtagSchema = new mongoose.Schema(
                required: true,
                unique: true
           },
-          parentHashtag: {
-               type: mongoose.Schema.Types.ObjectId,
-               ref: "hashtag",
-               default: null
-          },
           isDeleted: {
                type: Boolean,
                default: false
