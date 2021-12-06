@@ -25,7 +25,7 @@ class CardService {
   }
 
   async getAllCardsAsHashtag() {
-    return await Card.find({ isDeleted: false }).select("hashtags");
+    return await Card.find({ isDeleted: false }).select("title");
   }
 
   async getOne(cardId) {
