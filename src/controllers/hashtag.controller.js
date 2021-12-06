@@ -13,6 +13,21 @@ class HashtagContoller {
     res.status(200).send(response("All hashtag", result));
   }
 
+  async getAllParentHashtags(req, res) {
+    const result = await HashtagService.getAllParentHashtags();
+    res.status(200).send(response("All parent hashtags", result));
+  }
+
+  async getAllChildrenHashtags(req, res) {
+    const result = await HashtagService.getAllChildrenHashtags();
+    res.status(200).send(response("All children hashtags", result));
+  }
+
+  async getAllChildrenHashtagsByParent(req, res) {
+    const result = await HashtagService.getAllChildrenHashtagsByParent(req.params.hashtagId);
+    res.status(200).send(response("All children hashtags for parent", result));
+  }
+
   async getOne(req, res) {
     const result = await HashtagService.getOne(req.params.hashtagId);
     res.status(200).send(response("hashtag data", result));

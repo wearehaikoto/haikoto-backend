@@ -10,6 +10,15 @@ router.post("/create", authGuard(role.ADMIN), HashtagCtrl.create);
 // @route   GET /api/hashtag/
 router.get("/", authGuard(role.USER), HashtagCtrl.getAll);
 
+// @route   GET /api/hashtag/getAllParentHashtags
+router.get("/getAllParentHashtags", authGuard(role.USER), HashtagCtrl.getAllParentHashtags);
+
+// @route   GET /api/hashtag/getAllChildrenHashtags
+router.get("/getAllChildrenHashtags", authGuard(role.USER), HashtagCtrl.getAllChildrenHashtags);
+
+// @route   GET /api/hashtag/getAllChildrenHashtagsByParent/:hashtagId
+router.get("/getAllChildrenHashtagsByParent/:hashtagId", authGuard(role.USER), HashtagCtrl.getAllChildrenHashtagsByParent);
+
 // @route   GET /api/hashtag/:hashtagId
 router.get("/:hashtagId", authGuard(role.ADMIN), HashtagCtrl.getOne);
 
