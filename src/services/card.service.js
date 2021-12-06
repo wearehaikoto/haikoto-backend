@@ -13,7 +13,7 @@ class CardService {
 
     // Get #hashtags ID from database
     data.hashtags = await Promise.all(data.hashtags.map(async (hashtag) => {
-      const createHashtag = await HashtagService.create({ name: hashtag.trim().toLowerCase() });
+      const createHashtag = await HashtagService.create({ name: hashtag });
       return createHashtag._id;
     }));
 
@@ -22,6 +22,10 @@ class CardService {
 
   async getAll() {
     return await Card.find({ isDeleted: false }, { __v: 0 });
+  }
+
+  async getAllCardsAsHashtag() {
+    return await Card.find({ isDeleted: false }).select("hashtags");
   }
 
   async getOne(cardId) {

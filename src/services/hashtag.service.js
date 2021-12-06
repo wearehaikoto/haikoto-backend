@@ -7,7 +7,9 @@ class HashtagService {
     if (!data.name) throw new CustomError("Name is required");
 
     // Check if hashtag already exists
-    const hashtag = await Hashtag.findOne({ name: data.name });
+    const hashtag = await Hashtag.findOne({
+      name: data.name.trim().toLowerCase()
+    });
 
     if (hashtag) return hashtag;
 
@@ -27,7 +29,8 @@ class HashtagService {
   }
 
   async getAllChildrenHashtagsByParent(hashtagId) {
-    if (!ObjectId.isValid(hashtagId)) throw new CustomError("Invalid HashtagId");
+    if (!ObjectId.isValid(hashtagId))
+      throw new CustomError("Invalid HashtagId");
 
     return await Hashtag.find({ parentHashtag: hashtagId });
   }
