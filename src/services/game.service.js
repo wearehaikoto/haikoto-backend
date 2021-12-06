@@ -36,9 +36,7 @@ class GameService {
       /*do nothing*/
     }
 
-    if (!newCard && !newHashtag) {
-      throw new CustomError("No new card or hashtag");
-    }
+    if (!newCard && !newHashtag) return false;
 
     // Return true if there is a new card or hashtag to play
     return true;

@@ -9,7 +9,7 @@ class GameContoller {
 
     async checkIfNewCardForGame(req, res) {
         const result = await GameService.checkIfNewCardForGame(req.$user);
-        res.status(200).send(response("new cards for game are available", result));
+        res.status(200).send(response("check if cards are available", result));
     }
 
     async newCard(req, res) {
