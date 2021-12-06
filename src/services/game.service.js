@@ -6,16 +6,24 @@ const ObjectId = require("mongoose").Types.ObjectId;
 
 class GameService {
   async create(data, user) {
-    // Create Game with userId
+    const checkIfCanContinue = await this.checkIfNewCardForGame(user._id);
+
+    if (!checkIfCanContinue)
+      throw new CustomError("You have already played all the cards");
+
+    // Check if the user has and oldGame
+    const oldGame = await Game.findOne({ userId: user._id });
+
+    // return the old game if it exists
+    if (oldGame) return { ...oldGame.toObject(), continue: true };
+
+    // Create Game with userId if no oldGame
     const game = await new Game({
       userId: user._id
     }).save();
 
     // Return Cards populated
-    return {
-      ...game,
-      continue: true
-    };
+    return { ...game.toObject(), continue: false };
   }
 
   async checkIfNewCardForGame(user) {
