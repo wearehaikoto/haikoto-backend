@@ -21,11 +21,16 @@ class GameService {
   async checkIfNewCardForGame(user) {
     const game = await Game.findOne({ userId: user._id });
 
+    // If there is no game for the user, return true
+    if (!game) return true;
+
+    // If there is a game for the user, check if there are any cards left
     let newCard = false;
     let newHashtag = false;
 
+    // If there are no cards left, return true
     try {
-      newCard = await this.newCard(game._id);
+      newCard = await this.newCard(game._id, true);
     } catch (error) {
       /*do nothing*/
     }
@@ -42,7 +47,7 @@ class GameService {
     return true;
   }
 
-  async newCard(gameId) {
+  async newCard(gameId, fromGameService) {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
     const game = await Game.findOne({ _id: gameId }).populate(
@@ -72,9 +77,12 @@ class GameService {
     // Populate the newRandomcard Hashtags
     await Card.populate(newRandomCard, { path: "hashtags" });
 
-    // Add the new card to the game
-    game.cards.push(newRandomCard[0]._id);
-    await game.save();
+    // Don't save the card if this function is called from the game service
+    if (!fromGameService) {
+      // Add the new card to the game
+      game.cards.push(newRandomCard[0]._id);
+      await game.save();
+    }
 
     // Return the new random card
     return {
