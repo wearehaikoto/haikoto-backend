@@ -7,6 +7,11 @@ class GameContoller {
         res.status(200).send(response("game created successfully", result));
     }
 
+    async checkIfNewCardForGame(req, res) {
+        const result = await GameService.checkIfNewCardForGame(req.$user);
+        res.status(200).send(response("new cards for game are available", result));
+    }
+
     async newCard(req, res) {
         const result = await GameService.newCard(req.params.gameId);
         res.status(200).send(response("new card added successfully", result));

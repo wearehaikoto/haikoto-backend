@@ -8,11 +8,40 @@ class GameService {
   async create(data, user) {
     // Create Game with userId
     const game = await new Game({
-      userId: user._id,
+      userId: user._id
     }).save();
 
     // Return Cards populated
-    return await game;
+    return {
+      ...game,
+      continue: true
+    };
+  }
+
+  async checkIfNewCardForGame(user) {
+    const game = await Game.findOne({ userId: user._id });
+
+    let newCard = false;
+    let newHashtag = false;
+
+    try {
+      newCard = await this.newCard(game._id);
+    } catch (error) {
+      /*do nothing*/
+    }
+
+    try {
+      newHashtag = await this.newHashtag(game._id);
+    } catch (error) {
+      /*do nothing*/
+    }
+
+    if (!newCard && !newHashtag) {
+      throw new CustomError("No new card or hashtag");
+    }
+
+    // Return true if there is a new card or hashtag to play
+    return true;
   }
 
   async newCard(gameId) {
@@ -26,11 +55,21 @@ class GameService {
 
     // Get a random card from the database that does not have any of the same hashtags as the leftSwipedHashtags but has rightSwipedHashtags and has not been used in the game
     const newRandomCard = await Card.aggregate([
-      { $match: { isDeleted: false, _id: { $nin: game.cards.map((card) => card._id) }, hashtags: { $nin: game.leftSwipedHashtags.toString().split(","), $in: game.rightSwipedHashtags.toString().split(",") } } },
-      { $sample: { size: 1 } },
+      {
+        $match: {
+          isDeleted: false,
+          _id: { $nin: game.cards.map((card) => card._id) },
+          hashtags: {
+            $nin: game.leftSwipedHashtags.toString().split(","),
+            $in: game.rightSwipedHashtags.toString().split(",")
+          }
+        }
+      },
+      { $sample: { size: 1 } }
     ]);
 
-    if (newRandomCard.length === 0) throw new CustomError("All cards have been used");
+    if (newRandomCard.length === 0)
+      throw new CustomError("All cards have been used");
 
     // Populate the newRandomcard Hashtags
     await Card.populate(newRandomCard, { path: "hashtags" });
@@ -53,11 +92,19 @@ class GameService {
 
     // Get a random hashtag from the Hashtag model that does not have any of the same hashtags as the leftSwipedHashtags or rightSwipedHashtags
     const newRandomHashtag = await Hashtag.aggregate([
-      { $match: { isDeleted: false, _id: { $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags) } } },
-      { $sample: { size: 1 } },
+      {
+        $match: {
+          isDeleted: false,
+          _id: {
+            $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags)
+          }
+        }
+      },
+      { $sample: { size: 1 } }
     ]);
 
-    if (newRandomHashtag.length === 0) throw new CustomError("All hashtags have been used");
+    if (newRandomHashtag.length === 0)
+      throw new CustomError("All hashtags have been used");
 
     // Return the new random hashtag
     return {
@@ -75,9 +122,12 @@ class GameService {
   async getOne(gameId) {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
-    const game = await Game.findOne({ _id: gameId }).populate(
-      "userId", "codeName"
-    ).populate({ path: "cards leftSwipedCards rightSwipedCards", populate: { path: "hashtags", }, });
+    const game = await Game.findOne({ _id: gameId })
+      .populate("userId", "codeName")
+      .populate({
+        path: "cards leftSwipedCards rightSwipedCards",
+        populate: { path: "hashtags" }
+      });
 
     if (!game) throw new CustomError("Game does not exist");
 

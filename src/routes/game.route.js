@@ -9,6 +9,9 @@ router.get("/", authGuard(role.USER), GameCtrl.getAll);
 // @route   GET /api/game/me
 router.get("/me", authGuard(role.USER), GameCtrl.getAllByUser);
 
+// @route   GET /api/game/checkIfNewCardForGame
+router.get("/checkIfNewCardForGame", GameCtrl.checkIfNewCardForGame);
+
 // @route   GET /api/game/:gameId
 router.get("/:gameId", authGuard(role.USER), GameCtrl.getOne);
 
