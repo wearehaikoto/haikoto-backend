@@ -17,7 +17,7 @@ class HashtagService {
   }
 
   async getAll() {
-    return await Hashtag.find({});
+    return await Hashtag.find({ isDeleted: false });
   }
 
   async getAllParentHashtags() {
