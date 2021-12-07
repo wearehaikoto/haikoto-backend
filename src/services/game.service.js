@@ -12,7 +12,10 @@ class GameService {
       throw new CustomError("You have already played all the cards");
 
     // Check if the user has and oldGame
-    const oldGame = await Game.findOne({ userId: user._id });
+    const oldGame = await Game.findOne({ userId: user._id }).populate(
+      "cards leftSwipedCards rightSwipedCards",
+      "-userId -__v"
+    );
 
     // return the old game if it exists
     if (oldGame) return { ...oldGame.toObject(), continue: true };
