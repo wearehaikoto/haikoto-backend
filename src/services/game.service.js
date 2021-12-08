@@ -66,7 +66,9 @@ class GameService {
     );
     if (!game) throw new CustomError("Game does not exist");
 
-    // Get a random card from the database that does not have any of the same hashtags as the leftSwipedHashtags but has rightSwipedHashtags and has not been used in the game
+    // Get a random card from the database that does not have any of the same hashtags as the leftSwipedHashtags but has rightSwipedHashtags,
+    // has not been used in the game,
+    // and is not a parent card
     const newRandomCard = await Card.aggregate([
       {
         $match: {
@@ -74,8 +76,9 @@ class GameService {
           _id: { $nin: game.cards.map((card) => card._id) },
           hashtags: {
             $nin: game.leftSwipedHashtags.toString().split(","),
-            $in: game.rightSwipedHashtags.toString().split(",")
-          }
+            $in: game.rightSwipedHashtags.toString().split(","),
+          },
+          hashtags: { $exists: true, $ne: [] },
         }
       },
       { $sample: { size: 1 } }
