@@ -19,6 +19,8 @@ class CardService {
           return createHashtag._id;
         })
       );
+    } else {
+      data.hashtags = [];
     }
 
     return await new Card({ userId: user._id, ...data }).save();
