@@ -9,15 +9,17 @@ class CardService {
   async create(data, user) {
     if (!data.title) throw new CustomError("Card Title is required");
     if (!data.image) throw new CustomError("Card Image is required");
-    if (!data.hashtags) throw new CustomError("Card Hashtag is required");
+    // if (!data.hashtags) throw new CustomError("Card Hashtag is required");
 
-    // Get #hashtags ID from database
-    data.hashtags = await Promise.all(
-      data.hashtags.map(async (hashtag) => {
-        const createHashtag = await HashtagService.create({ name: hashtag });
-        return createHashtag._id;
-      })
-    );
+    if (data.hashtags) {
+      // Get #hashtags ID from database
+      data.hashtags = await Promise.all(
+        data.hashtags.map(async (hashtag) => {
+          const createHashtag = await HashtagService.create({ name: hashtag });
+          return createHashtag._id;
+        })
+      );
+    }
 
     return await new Card({ userId: user._id, ...data }).save();
   }
