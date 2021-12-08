@@ -20,9 +20,10 @@ const cardSchema = new mongoose.Schema(
                 {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
-                    ref: "hashtag"
+                    ref: "card"
                 }
             ],
+
             required: true
         },
         isDeleted: {

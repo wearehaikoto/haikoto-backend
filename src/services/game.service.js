@@ -1,6 +1,5 @@
 const Game = require("./../models/game.model");
 const Card = require("./../models/card.model");
-const Hashtag = require("./../models/hashtag.model");
 const CustomError = require("./../utils/custom-error");
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -107,14 +106,15 @@ class GameService {
     const game = await Game.findOne({ _id: gameId });
     if (!game) throw new CustomError("Game does not exist");
 
-    // Get a random hashtag from the Hashtag model that does not have any of the same hashtags as the leftSwipedHashtags or rightSwipedHashtags
-    const newRandomHashtag = await Hashtag.aggregate([
+    // Get a random card from the Card model that does not have any of the same id with the leftSwipedHashtags or rightSwipedHashtags and has not hashTags
+    const newRandomHashtag = await Card.aggregate([
       {
         $match: {
           isDeleted: false,
           _id: {
             $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags)
-          }
+          },
+          hashtags: { $exists: true, $ne: [] }
         }
       },
       { $sample: { size: 1 } }

@@ -1,6 +1,4 @@
 const Card = require("./../models/card.model");
-const Hashtag = require("./../models/hashtag.model");
-const HashtagService = require("./hashtag.service");
 const ObjectId = require("mongoose").Types.ObjectId;
 const CustomError = require("./../utils/custom-error");
 const EloRatingAlgorithm = require("../utils/elo-rating-algorithm");
@@ -9,21 +7,17 @@ class CardService {
   async create(data, user) {
     if (!data.title) throw new CustomError("Card Title is required");
     if (!data.image) throw new CustomError("Card Image is required");
-    // if (!data.hashtags) throw new CustomError("Card Hashtag is required");
+    if (!data.hashtags) data.hashtags = [];
 
-    if (data.hashtags) {
-      // Get #hashtags ID from database
-      data.hashtags = await Promise.all(
-        data.hashtags.map(async (hashtag) => {
-          const createHashtag = await HashtagService.create({ name: hashtag });
-          return createHashtag._id;
-        })
-      );
-    } else {
-      data.hashtags = [];
+    // Check that hashtags are valid cards with Id
+    for (let i = 0; i < data.hashtags.length; i++) {
+      if (!ObjectId.isValid(data.hashtags[i]))
+        throw new CustomError("Invalid HashtagId");
     }
 
-    return await new Card({ userId: user._id, ...data }).save();
+    data.userId = user._id;
+
+    return await new Card(data).save();
   }
 
   async getAll() {
@@ -31,20 +25,12 @@ class CardService {
   }
 
   async getAllCardsAsHashtag() {
-    // Get all hashtags
-    const hashtags = await Hashtag.find({ isDeleted: false }).select(
-      "_id name"
-    );
-    const cardTitles = await Card.find({ isDeleted: false }).select("title");
+    const hashtags = await Card.find({
+      isDeleted: false,
+      hashtags: { $exists: true, $ne: [] }
+    }).select("title");
 
-    const hashtagsMergedWithCards = [
-      ...new Set([
-        ...hashtags.map((hashtags) => hashtags.name),
-        ...cardTitles.map((card) => card.title.toLowerCase())
-      ])
-    ];
-
-    return hashtagsMergedWithCards;
+    return hashtags;
   }
 
   async getOne(cardId) {

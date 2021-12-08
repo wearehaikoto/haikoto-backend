@@ -10,8 +10,6 @@ router.use("/user", require("./user.route.js"));
 
 router.use("/card", require("./card.route.js"));
 
-router.use("/hashtag", require("./hashtag.route.js"));
-
 router.use("/game", require("./game.route.js"));
 
 
