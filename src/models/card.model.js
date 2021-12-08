@@ -23,7 +23,6 @@ const cardSchema = new mongoose.Schema(
                     ref: "hashtag"
                 }
             ],
-            default: null,
             required: true
         },
         isDeleted: {
