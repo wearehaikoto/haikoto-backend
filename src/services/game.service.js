@@ -114,7 +114,7 @@ class GameService {
           _id: {
             $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags)
           },
-          hashtags: { $exists: true, $ne: [] }
+          hashtags: { $exists: true, $eq: [] }
         }
       },
       { $sample: { size: 1 } }

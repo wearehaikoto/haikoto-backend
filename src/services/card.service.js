@@ -27,7 +27,7 @@ class CardService {
   async getAllCardsAsHashtag() {
     const hashtags = await Card.find({
       isDeleted: false,
-      hashtags: { $exists: true, $ne: [] }
+      hashtags: { $exists: true, $eq: [] }
     }).select("title");
 
     return hashtags;
