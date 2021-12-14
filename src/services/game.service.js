@@ -29,6 +29,9 @@ class GameService {
   }
 
   async checkIfNewCardForGame(user) {
+
+    // await Game.deleteMany({ }) // for easy testing delete all everytime
+
     const game = await Game.findOne({ userId: user._id });
 
     // If there is no game for the user, return true
@@ -75,8 +78,8 @@ class GameService {
           isDeleted: false,
           _id: { $nin: game.cards.map((card) => card._id) },
           hashtags: {
-            $nin: game.leftSwipedHashtags.toString().split(","),
-            $in: game.rightSwipedHashtags.toString().split(","),
+            $nin: game.leftSwipedHashtags,
+            $in: game.rightSwipedHashtags,
           },
           hashtags: { $exists: true, $ne: [] },
         }
