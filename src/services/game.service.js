@@ -76,10 +76,12 @@ class GameService {
       {
         $match: {
           isDeleted: false,
-          _id: { $nin: game.cards.map((card) => card._id) },
+          _id: {
+            $nin: game.cards.map((card) => card._id) 
+          },
           hashtags: {
-            $nin: [game.leftSwipedHashtags],
-            $in: [game.rightSwipedHashtags],
+            $nin: game.leftSwipedHashtags,
+            $in: game.rightSwipedHashtags,
             $ne: []
           }
         }
