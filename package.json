@@ -6,6 +6,7 @@
   "repository": "https://github.com/MYPD/haikoto-backend",
   "author": "Eniola Osabiya <eosabiya@gmail.com>",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
