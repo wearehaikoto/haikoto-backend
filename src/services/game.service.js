@@ -12,7 +12,7 @@ class GameService {
 
     // Check if the user has and oldGame
     const oldGame = await Game.findOne({ userId: user._id }).populate(
-      "cards leftSwipedCards rightSwipedCards",
+      "leftSwipedCards rightSwipedCards",
       "-userId -__v"
     );
 
@@ -43,7 +43,7 @@ class GameService {
 
     // If there are no cards left, return true
     try {
-      newCard = await this.newCard(game._id, true);
+      newCard = await this.newCard(game._id);
     } catch (error) {
       /*do nothing*/
     }
@@ -60,7 +60,7 @@ class GameService {
     return true;
   }
 
-  async newCard(gameId, fromGameService) {
+  async newCard(gameId) {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
     const game = await Game.findOne({ _id: gameId }).populate(
@@ -77,7 +77,7 @@ class GameService {
         $match: {
           isDeleted: false,
           _id: {
-            $nin: game.cards.map((card) => card._id) 
+            $nin: game.rightSwipedCards.concat(game.leftSwipedCards).map((card) => card._id)
           },
           hashtags: {
             $nin: game.leftSwipedHashtags,
@@ -94,13 +94,6 @@ class GameService {
 
     // Populate the newRandomcard Hashtags
     await Card.populate(newRandomCard, { path: "hashtags" });
-
-    // Don't save the card if this function is called from the game service
-    if (!fromGameService) {
-      // Add the new card to the game
-      game.cards.push(newRandomCard[0]._id);
-      await game.save();
-    }
 
     // Return the new random card
     return {
@@ -139,7 +132,7 @@ class GameService {
 
   async getAll() {
     return await Game.find({}, { __v: 0 }).populate(
-      "userId cards leftSwipedCards rightSwipedCards",
+      "userId leftSwipedCards rightSwipedCards",
       "-userId -__v"
     );
   }
@@ -150,7 +143,7 @@ class GameService {
     const game = await Game.findOne({ _id: gameId })
       .populate("userId", "codeName")
       .populate({
-        path: "cards leftSwipedCards rightSwipedCards",
+        path: "leftSwipedCards rightSwipedCards",
         populate: { path: "hashtags" }
       });
 
@@ -238,7 +231,7 @@ class GameService {
 
   async getAllByUser(user) {
     return await Game.find({ userId: user._id }, { __v: 0 }).populate(
-      "cards leftSwipedCards rightSwipedCards",
+      "leftSwipedCards rightSwipedCards",
       "-userId -__v"
     );
   }

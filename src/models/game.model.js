@@ -7,16 +7,6 @@ const GameSchema = new mongoose.Schema(
             required: true,
             ref: "user"
         },
-        cards: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    required: true,
-                    ref: "card"
-                }
-            ],
-            required: true
-        },
         rightSwipedCards: {
             type: [
                 {
