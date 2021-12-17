@@ -231,7 +231,7 @@ class GameService {
 
   async getAllByUser(user) {
     return await Game.find({ userId: user._id }, { __v: 0 }).populate(
-      "leftSwipedCards rightSwipedCards",
+      "leftSwipedCards rightSwipedCards leftSwipedHashtags rightSwipedHashtags",
       "-userId -__v"
     );
   }
