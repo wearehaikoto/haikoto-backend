@@ -32,6 +32,11 @@ class CardContoller {
     res.status(200).send(response("elo rating updated", result));
   }
 
+  async update(req, res) {
+    const result = await CardService.update(req.params.cardId, req.body);
+    res.status(200).send(response("card updated", result));
+  }
+
   async delete(req, res) {
     const result = await CardService.delete(req.params.cardId);
     res.status(200).send(response("card deleted", result));

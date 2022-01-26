@@ -36,13 +36,12 @@ class CardService {
   async getOne(cardId) {
     if (!ObjectId.isValid(cardId)) throw new CustomError("Card does not exist");
 
-    const card = await Card.findOne({ _id: cardId }).populate(
-      "userId",
-      "_id codeName name"
-    ).populate({
-      path: "hashtags",
-      select: "title",
-    });
+    const card = await Card.findOne({ _id: cardId })
+      .populate("userId", "_id codeName name")
+      .populate({
+        path: "hashtags",
+        select: "title"
+      });
     if (!card) throw new CustomError("Card does not exist");
 
     return card;
@@ -86,6 +85,29 @@ class CardService {
       winner: new_elo_for_winner_card,
       loser: new_elo_for_loser_card
     };
+  }
+
+  async update(cardId, data) {
+    if (!ObjectId.isValid(cardId)) throw new CustomError("Card does not exist");
+    if (!data.title) throw new CustomError("Card Title is required");
+    if (!data.image) throw new CustomError("Card Image is required");
+    if (!data.hashtags) data.hashtags = [];
+
+    // Check that hashtags are valid cards with Id
+    for (let i = 0; i < data.hashtags.length; i++) {
+      if (!ObjectId.isValid(data.hashtags[i]))
+        throw new CustomError("Invalid HashtagId");
+    }
+
+    const card = await Card.findOneAndUpdate(
+      { _id: cardId },
+      { $set: data },
+      { new: true }
+    );
+
+    if (!card) throw new CustomError("Card does not exist");
+
+    return card;
   }
 
   async delete(cardId) {
