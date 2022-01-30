@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema(
             enum: ["user", "admin"],
             default: "user"
         },
+        organisation: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: false,
+            ref: "organisation"
+        },
         isDeleted: {
             type: Boolean,
             default: false
