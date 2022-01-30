@@ -23,7 +23,6 @@ const cardSchema = new mongoose.Schema(
                     ref: "card"
                 }
             ],
-
             required: true
         },
         isDeleted: {
