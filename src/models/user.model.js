@@ -5,8 +5,7 @@ const userSchema = new mongoose.Schema(
         codeName: {
             type: String,
             trim: true,
-            required: true,
-            unique: true
+            required: true
         },
         role: {
             type: String,

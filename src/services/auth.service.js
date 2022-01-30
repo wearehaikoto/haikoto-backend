@@ -22,7 +22,7 @@ class AuthService {
     async loginOrSignup(data) {
         if (!data.codeName) throw new CustomError("codeName is required");
 
-        // Check if user already exist
+        // Check if user with orgId already exist
         const user = await User.findOne({ codeName: data.codeName, organisation: data.organisation });
 
         // Create user if not exist
