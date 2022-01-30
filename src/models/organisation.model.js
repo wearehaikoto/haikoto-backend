@@ -5,17 +5,14 @@ const organisationSchema = new Schema(
      {
           name: {
               type: String,
-              trim: true,
-              required: true,
-              unique: true
+              required: true
           },
           url_slug: {
                type: String,
                unique: true
           },
           logo: {
-              type: String,
-              trim: true
+               type: String
           },
           isDeleted: {
               type: Boolean,
