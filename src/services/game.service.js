@@ -77,7 +77,9 @@ class GameService {
         $match: {
           isDeleted: false,
           _id: {
-            $nin: game.rightSwipedCards.concat(game.leftSwipedCards).map((card) => card._id)
+            $nin: game.rightSwipedCards
+              .concat(game.leftSwipedCards)
+              .map((card) => card._id)
           },
           hashtags: {
             $nin: game.leftSwipedHashtags,
@@ -172,10 +174,11 @@ class GameService {
     const game = await Game.findOneAndUpdate(
       { _id: gameId },
       {
-        $push: {
-          rightSwipedCards: { $each: [data.cardId], $position: 0 },
-          eloScores: 1500
-        }
+        // $push: {
+        //   rightSwipedCards: { $each: [data.cardId], $position: 0 },
+        //   eloScores: 1500
+        // }
+        $push: { rightSwipedCards: data.cardId, eloScores: 1500 },
       },
       { new: true }
     );
