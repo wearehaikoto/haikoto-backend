@@ -5,7 +5,7 @@ class TokenService {
     // Create a new Token for a user
     async generateToken(user) {
         const token = JWT.sign(
-            { id: user._id, codeName: user.codeName, role: user.role },
+            { id: user._id, ...user },
             JWT_SECRET
         );
         return token;
