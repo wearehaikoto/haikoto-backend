@@ -23,7 +23,7 @@ class AuthService {
         if (!data.codeName) throw new CustomError("codeName is required");
 
         // Check if user already exist
-        const user = await User.findOne({ codeName: data.codeName });
+        const user = await User.findOne({ codeName: data.codeName, organisation: data.organisation });
 
         // Create user if not exist
         if (!user) {
