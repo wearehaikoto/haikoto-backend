@@ -26,7 +26,7 @@ class GameService {
   }
 
   async checkIfNewCardForGame(user) {
-    await Game.deleteMany({ }); // for easy testing delete all everytime
+    // await Game.deleteMany({ }); // for easy testing delete all everytime
 
     const game = await Game.findOne({ userId: user._id });
 
