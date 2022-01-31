@@ -1,3 +1,4 @@
+const ObjectId = require("mongoose").Types.ObjectId;
 const CustomError = require("./../utils/custom-error");
 const Organisation = require("./../models/organisation.model");
 
@@ -7,7 +8,7 @@ class OrganisationService {
   }
 
   async getAll() {
-    return await Organisation.find({});
+    return await Organisation.find({ isDeleted: false });
   }
 
   async getOne(organisationId) {
@@ -37,8 +38,16 @@ class OrganisationService {
   }
 
   async delete(organisationId) {
-    const organisation = await Organisation.findOne({ _id: organisationId });
-    organisation.remove();
+    if (!ObjectId.isValid(organisationId)) throw new CustomError("Organisation does not exist");
+
+    const organisation = await Organisation.findOneAndUpdate(
+      { _id: organisationId },
+      { isDeleted: true },
+      { new: true }
+    );
+
+    if (!organisation) throw new CustomError("Organisation does not exist");
+
     return organisation;
   }
 }

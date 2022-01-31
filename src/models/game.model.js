@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const GameSchema = new mongoose.Schema(
+const gameSchema = new mongoose.Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -53,5 +53,20 @@ const GameSchema = new mongoose.Schema(
     }
 );
 
+gameSchema.pre("findOne", function (next) {
+    this.populate("userId");
+    this.populate({
+        path: "leftSwipedCards",
+        populate: { path: "hashtags" }
+    });
+    this.populate({
+        path: "rightSwipedCards",
+        populate: { path: "hashtags" }
+    });
+    this.populate("leftSwipedHashtags");
+    this.populate("rightSwipedHashtags");
+    next();
+});
+
 // Export the model
-module.exports = mongoose.model("Game", GameSchema);
+module.exports = mongoose.model("Game", gameSchema);

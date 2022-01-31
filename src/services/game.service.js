@@ -11,10 +11,7 @@ class GameService {
       throw new CustomError("You have already played all the cards");
 
     // Check if the user has and oldGame
-    const oldGame = await Game.findOne({ userId: user._id }).populate(
-      "leftSwipedCards rightSwipedCards",
-      "-userId -__v"
-    );
+    const oldGame = await Game.findOne({ userId: user._id });
 
     // return the old game if it exists
     if (oldGame) return { ...oldGame.toObject(), continue: true };
@@ -29,8 +26,7 @@ class GameService {
   }
 
   async checkIfNewCardForGame(user) {
-
-    // await Game.deleteMany({ }); // for easy testing delete all everytime
+    await Game.deleteMany({ }); // for easy testing delete all everytime
 
     const game = await Game.findOne({ userId: user._id });
 
@@ -63,13 +59,12 @@ class GameService {
   async newCard(gameId) {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
-    const game = await Game.findOne({ _id: gameId }).populate(
-      "userId leftSwipedCards rightSwipedCards",
-      "-__v"
-    );
+    const game = (await Game.find({ _id: gameId }))[0];
     if (!game) throw new CustomError("Game does not exist");
 
-    // Get a random card from the database that does not have any of the same hashtags as the leftSwipedHashtags but has rightSwipedHashtags,
+    // Get a random card from the database that does
+    // not have any of the same hashtags as the leftSwipedHashtags but
+    // has rightSwipedHashtags,
     // has not been used in the game,
     // and is not a parent card
     const newRandomCard = await Card.aggregate([
@@ -77,9 +72,7 @@ class GameService {
         $match: {
           isDeleted: false,
           _id: {
-            $nin: game.rightSwipedCards
-              .concat(game.leftSwipedCards)
-              .map((card) => card._id)
+            $nin: game.rightSwipedCards.concat(game.leftSwipedCards)
           },
           hashtags: {
             $nin: game.leftSwipedHashtags,
@@ -106,7 +99,7 @@ class GameService {
   async newHashtag(gameId) {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
-    const game = await Game.findOne({ _id: gameId });
+    const game = (await Game.find({ _id: gameId }))[0];
     if (!game) throw new CustomError("Game does not exist");
 
     // Get a random card from the Card model that does not have any of the same id with the leftSwipedHashtags or rightSwipedHashtags and has not hashTags
@@ -142,13 +135,7 @@ class GameService {
   async getOne(gameId) {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
-    const game = await Game.findOne({ _id: gameId })
-      .populate("userId", "codeName")
-      .populate({
-        path: "leftSwipedCards rightSwipedCards",
-        populate: { path: "hashtags" }
-      });
-
+    const game = await Game.findOne({ _id: gameId });
     if (!game) throw new CustomError("Game does not exist");
 
     return game;
@@ -178,7 +165,7 @@ class GameService {
         //   rightSwipedCards: { $each: [data.cardId], $position: 0 },
         //   eloScores: 1500
         // }
-        $push: { rightSwipedCards: data.cardId, eloScores: 1500 },
+        $push: { rightSwipedCards: data.cardId, eloScores: 1500 }
       },
       { new: true }
     );
@@ -233,10 +220,7 @@ class GameService {
   }
 
   async getAllByUser(user) {
-    return await Game.find({ userId: user._id }, { __v: 0 }).populate(
-      "leftSwipedCards rightSwipedCards leftSwipedHashtags rightSwipedHashtags",
-      "-userId -__v"
-    );
+    return await Game.findOne({ userId: user._id }, { __v: 0 });
   }
 }
 

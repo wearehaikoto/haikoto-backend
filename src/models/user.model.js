@@ -28,5 +28,10 @@ const userSchema = new mongoose.Schema(
     }
 );
 
+userSchema.pre("findOne", function (next) {
+    this.populate("organisation");
+    next();
+});
+
 // Export the model
 module.exports = mongoose.model("user", userSchema);

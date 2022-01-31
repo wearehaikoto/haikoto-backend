@@ -25,19 +25,26 @@ const cardSchema = new mongoose.Schema(
             ],
             required: true
         },
+        eloRating: {
+            type: Number,
+            default: 1500
+        },
         isDeleted: {
             type: Boolean,
             default: false
         },
-        eloRating: {
-            type: Number,
-            default: 1500
-        }
     },
     {
         timestamps: true
     }
 );
 
+cardSchema.pre("findOne", function (next) {
+    this.populate("userId", "_id codeName name");
+    this.populate("hashtags");
+    next();
+});
+
 // Export the model
 module.exports = mongoose.model("card", cardSchema);
+

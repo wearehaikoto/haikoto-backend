@@ -36,12 +36,7 @@ class CardService {
   async getOne(cardId) {
     if (!ObjectId.isValid(cardId)) throw new CustomError("Card does not exist");
 
-    const card = await Card.findOne({ _id: cardId })
-      .populate("userId", "_id codeName name")
-      .populate({
-        path: "hashtags",
-        select: "title"
-      });
+    const card = await Card.findOne({ _id: cardId });
     if (!card) throw new CustomError("Card does not exist");
 
     return card;
