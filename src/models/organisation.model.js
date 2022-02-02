@@ -34,4 +34,9 @@ const organisationSchema = new Schema(
      }
 );
 
+organisationSchema.pre("findOne", function (next) {
+     this.populate("hashtags");
+     next();
+});
+
 module.exports = mongoose.model("organisation", organisationSchema)
