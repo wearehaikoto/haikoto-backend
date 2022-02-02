@@ -14,6 +14,16 @@ const organisationSchema = new Schema(
           logo: {
                type: String
           },
+          hashtags: {
+               type: [
+                    {
+                       type: mongoose.Schema.Types.ObjectId,
+                       required: true,
+                       ref: "card"
+                    }
+               ],
+               required: true
+          },
           isDeleted: {
               type: Boolean,
               default: false

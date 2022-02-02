@@ -3,8 +3,8 @@ const router = require("express").Router();
 const authGuard = require("../middlewares/auth.middleware");
 const OrganisationCtrl = require("./../controllers/organisation.controller");
 
-// @route   POST /api/organisation/
-router.post("/", authGuard(role.ADMIN), OrganisationCtrl.create);
+// @route   POST /api/organisation/create
+router.post("/create", authGuard(role.ADMIN), OrganisationCtrl.create);
 
 // @route   GET /api/organisation/
 router.get("/", authGuard(role.ADMIN), OrganisationCtrl.getAll);

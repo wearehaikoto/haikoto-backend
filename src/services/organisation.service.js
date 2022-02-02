@@ -4,6 +4,23 @@ const Organisation = require("./../models/organisation.model");
 
 class OrganisationService {
   async create(data) {
+
+    if (!data.name) throw new CustomError("Organisation Name is required");
+    if (!data.url_slug) throw new CustomError("Organisation URL Slug is required");
+    if (!data.logo) throw new CustomError("Organisation Logo is required");
+    if (!data.hashtags) data.hashtags = [];
+
+    // Check that hashtags are valid cards with Id
+    for (let i = 0; i < data.hashtags.length; i++) {
+      if (!ObjectId.isValid(data.hashtags[i]))
+        throw new CustomError("Invalid HashtagId");
+    }
+
+    // Check that url_slug is unique
+    const organisation = await Organisation.findOne({ url_slug: data.url_slug });
+    if (organisation) throw new CustomError("This Organisation URL Slug already exists");
+
+    // This url slug is already in use
     return await new Organisation(data).save();
   }
 
