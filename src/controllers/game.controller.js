@@ -18,7 +18,7 @@ class GameContoller {
     }
 
     async newHashtag(req, res) {
-        const result = await GameService.newHashtag(req.params.gameId);
+        const result = await GameService.newHashtag(req.$user, req.params.gameId);
         res.status(200).send(response("new hashtag added successfully", result));
     }
 

@@ -58,7 +58,7 @@ class OrganisationService {
 
     // Check that url_slug is unique
     const slugExist = await Organisation.findOne({ url_slug: data.url_slug });
-    if (slugExist) throw new CustomError("This Organisation URL Slug already exists");
+    if (slugExist && slugExist.id !== organisationId) throw new CustomError("This Organisation URL Slug already exists");
 
     const organisation = await Organisation.findByIdAndUpdate(
       { _id: organisationId },

@@ -1,5 +1,6 @@
 const Game = require("./../models/game.model");
 const Card = require("./../models/card.model");
+const Organisation = require("./../models/organisation.model");
 const CustomError = require("./../utils/custom-error");
 const ObjectId = require("mongoose").Types.ObjectId;
 
@@ -45,7 +46,7 @@ class GameService {
     }
 
     try {
-      newHashtag = await this.newHashtag(game._id);
+      newHashtag = await this.newHashtag(user, game._id);
     } catch (error) {
       /*do nothing*/
     }
@@ -96,20 +97,32 @@ class GameService {
     };
   }
 
-  async newHashtag(gameId) {
+  async newHashtag(user, gameId) {
     if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
 
     const game = (await Game.find({ _id: gameId }))[0];
     if (!game) throw new CustomError("Game does not exist");
+
+    const query = {
+      $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags)
+    };
+
+    // Check if user is attached to an organisation
+    if (user.organisation) {
+      const organisation = await Organisation.findOne({
+        _id: user.organisation
+      });
+
+      // If the user is attached to an organisation, get all the hashtags
+      query["$in"] = organisation.hashtags.map((h) => h._id);
+    }
 
     // Get a random card from the Card model that does not have any of the same id with the leftSwipedHashtags or rightSwipedHashtags and has not hashTags
     const newRandomHashtag = await Card.aggregate([
       {
         $match: {
           isDeleted: false,
-          _id: {
-            $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags)
-          },
+          _id: query,
           hashtags: { $exists: true, $eq: [] }
         }
       },
