@@ -37,6 +37,6 @@ router.put("/:gameId/addLeftSwipedHashtag", authGuard(role.USER), GameCtrl.addLe
 router.put("/:gameId/addRightSwipedHashtag", authGuard(role.USER), GameCtrl.addRightSwipedHashtag);
 
 // @route   PATCH /api/game/:gameId/updateRightSwipedCards
-router.patch("/:gameId/updateRightSwipedCards", authGuard(role.USER), GameCtrl.updateRightSwipedCards );
+router.patch("/:gameId/updateRightSwipedCards", authGuard(role.USER), GameCtrl.updateRightSwipedCards);
 
 module.exports = router;

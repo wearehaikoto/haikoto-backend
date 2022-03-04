@@ -6,30 +6,30 @@ const morgan = require("morgan");
 const express = require("express");
 
 module.exports = (app) => {
-  // Set Env File
-  dotenv.config({
-    path: path.resolve(__dirname, "..", "..", ".env")
-  });
+    // Set Env File
+    dotenv.config({
+        path: path.resolve(__dirname, "..", "..", ".env")
+    });
 
-  // enable CORS
-  app.use(cors());
+    // enable CORS
+    app.use(cors());
 
-  // Secure the app by setting various HTTP headers off.
-  app.use(helmet());
+    // Secure the app by setting various HTTP headers off.
+    app.use(helmet());
 
-  // Logger
-  app.use(morgan("dev"));
+    // Logger
+    app.use(morgan("dev"));
 
-  // Tell express to recognize the incoming Request Object as a JSON Object
-  app.use(express.json());
+    // Tell express to recognize the incoming Request Object as a JSON Object
+    app.use(express.json());
 
-  // app.use(express.static("/public"));
+    // app.use(express.static("/public"));
 
-  // Express body parser
-  app.use(express.urlencoded({ extended: true }));
+    // Express body parser
+    app.use(express.urlencoded({ extended: true }));
 
-  // Serve Uploads
-  app.use("/uploads", express.static("/uploads"));
+    // Serve Uploads
+    app.use("/uploads", express.static("/uploads"));
 
-  return app;
+    return app;
 };

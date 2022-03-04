@@ -16,9 +16,9 @@ router.use("/organisation", require("./organisation.route.js"));
 
 // Allow Playground to be accessed from localhost
 if (process.env.NODE_ENV !== "production") {
-  router.use("/playground", async (req, res) => {
-    res.json({});
-  });
+    router.use("/playground", async (req, res) => {
+        res.json({});
+    });
 }
 
 module.exports = router;

@@ -32,7 +32,7 @@ const cardSchema = new mongoose.Schema(
         isDeleted: {
             type: Boolean,
             default: false
-        },
+        }
     },
     {
         timestamps: true
@@ -47,4 +47,3 @@ cardSchema.pre("findOne", function (next) {
 
 // Export the model
 module.exports = mongoose.model("card", cardSchema);
-

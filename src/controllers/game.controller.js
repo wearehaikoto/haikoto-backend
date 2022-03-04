@@ -59,9 +59,7 @@ class GameContoller {
 
     async getAllByUser(req, res) {
         const result = await GameService.getAllByUser(req.$user);
-        res.status(200).send(
-            response(`All Games Played By ${req.$user.codeName}`, result)
-        );
+        res.status(200).send(response(`All Games Played By ${req.$user.codeName}`, result));
     }
 }
 
