@@ -70,6 +70,7 @@ class CardService {
         if (!ObjectId.isValid(cardId)) throw new CustomError("Card does not exist");
         if (!data.title) throw new CustomError("Card Title is required");
         if (!data.image) throw new CustomError("Card Image is required");
+        if (typeof data.isParent === undefined) throw new CustomError("Card Is Parent Type is required");
         if (!data.hashtags) data.hashtags = [];
 
         // Check that hashtags are valid cards with Id
