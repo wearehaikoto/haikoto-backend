@@ -29,6 +29,11 @@ const cardSchema = new mongoose.Schema(
             type: Number,
             default: 1500
         },
+        isParent: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
         isDeleted: {
             type: Boolean,
             default: false

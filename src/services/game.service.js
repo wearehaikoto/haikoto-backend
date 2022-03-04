@@ -62,22 +62,22 @@ class GameService {
         const game = (await Game.find({ _id: gameId }))[0];
         if (!game) throw new CustomError("Game does not exist");
 
-        // Get a random card from the database that does
+        // Get a random card from the database that
+        // is not a parent card
         // not have any of the same hashtags as the leftSwipedHashtags but
         // has rightSwipedHashtags,
         // has not been used in the game,
-        // and is not a parent card
         const newRandomCard = await Card.aggregate([
             {
                 $match: {
                     isDeleted: false,
+                    isParent: false,
                     _id: {
                         $nin: game.rightSwipedCards.concat(game.leftSwipedCards)
                     },
                     hashtags: {
                         $nin: game.leftSwipedHashtags,
-                        $in: game.rightSwipedHashtags,
-                        $ne: []
+                        $in: game.rightSwipedHashtags
                     }
                 }
             },
@@ -120,8 +120,8 @@ class GameService {
             {
                 $match: {
                     isDeleted: false,
-                    _id: query,
-                    hashtags: { $exists: true, $eq: [] }
+                    isParent: true,
+                    _id: query
                 }
             },
             { $sample: { size: 1 } }

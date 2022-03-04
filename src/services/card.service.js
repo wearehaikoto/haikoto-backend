@@ -7,6 +7,7 @@ class CardService {
     async create(data, user) {
         if (!data.title) throw new CustomError("Card Title is required");
         if (!data.image) throw new CustomError("Card Image is required");
+        if (typeof data.isParent === undefined) throw new CustomError("Card Is Parent Type is required");
         if (!data.hashtags) data.hashtags = [];
 
         // Check that hashtags are valid cards with Id
@@ -26,7 +27,7 @@ class CardService {
     async getAllCardsAsHashtag() {
         const hashtags = await Card.find({
             isDeleted: false,
-            hashtags: { $exists: true, $eq: [] }
+            isParent: true
         }).select("title");
 
         return hashtags;
