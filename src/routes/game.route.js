@@ -19,15 +19,15 @@ router.post("/:gameId/card/new", auth(role.USER), GameCtrl.newCard);
 
 router.post("/:gameId/hashtag/new", auth(role.USER), GameCtrl.newHashtag);
 
-router.post("/:gameId/card/add-left-swiped-card", authGuard(role.USER), GameCtrl.addLeftSwipedCard);
+router.post("/:gameId/card/add-left-swiped-card", auth(role.USER), GameCtrl.addLeftSwipedCard);
 
-router.post("/:gameId/card/add-right-swiped-card", authGuard(role.USER), GameCtrl.addRightSwipedCard);
+router.post("/:gameId/card/add-right-swiped-card", auth(role.USER), GameCtrl.addRightSwipedCard);
 
-router.put("/:gameId/card/update-right-swiped-cards", authGuard(role.USER), GameCtrl.updateRightSwipedCards);
+router.put("/:gameId/card/update-right-swiped-cards", auth(role.USER), GameCtrl.updateRightSwipedCards);
 
-router.post("/:gameId/hashtag/add-left-swiped-hashtag", authGuard(role.USER), GameCtrl.addLeftSwipedHashtag);
+router.post("/:gameId/hashtag/add-left-swiped-hashtag", auth(role.USER), GameCtrl.addLeftSwipedHashtag);
 
-router.post("/:gameId/hashtag/add-right-swiped-hashtag", authGuard(role.USER), GameCtrl.addRightSwipedHashtag);
+router.post("/:gameId/hashtag/add-right-swiped-hashtag", auth(role.USER), GameCtrl.addRightSwipedHashtag);
 
 router.put("/:gameId", auth(role.ADMIN), GameCtrl.update);
 
