@@ -1,18 +1,20 @@
-const { role } = require("../config");
+const { role } = require("./../config");
 const router = require("express").Router();
-const authGuard = require("../middlewares/auth.middleware");
-const UserCtrl = require("../controllers/user.controller.js");
+const auth = require("./../middlewares/auth.middleware");
+const UserCtrl = require("./../controllers/user.controller");
 
-// @route   GET /api/user/
-router.get("/", authGuard(role.ADMIN), UserCtrl.getAll);
+router.post("/", auth(role.ADMIN), UserCtrl.create);
 
-// @route   GET /api/user/:userId
-router.get("/:userId", authGuard(role.USER), UserCtrl.getOne);
+router.get("/", auth(role.ADMIN), UserCtrl.getAll);
 
-// @route   GET /api/user/:userId/updateRole
-router.patch("/:userId/updateRole", authGuard(role.ADMIN), UserCtrl.updateRole);
+router.get("/me", auth(role.USER), UserCtrl.getMe);
 
-// @route   DELETE /api/user/:userId
-router.delete("/:userId", authGuard(role.ADMIN), UserCtrl.delete);
+router.get("/:userId", auth(role.ADMIN), UserCtrl.getOne);
+
+router.put("/:userId", auth(role.USER), UserCtrl.update);
+
+router.patch("/:userId/update-role", auth(role.USER), UserCtrl.updateRole);
+
+router.delete("/:userId", auth(role.ADMIN), UserCtrl.delete);
 
 module.exports = router;

@@ -1,54 +1,44 @@
-const Game = require("./../models/game.model");
+const userService = require("./user.service");
 const Card = require("./../models/card.model");
-const Organisation = require("./../models/organisation.model");
+const Game = require("./../models/game.model");
 const CustomError = require("./../utils/custom-error");
-const ObjectId = require("mongoose").Types.ObjectId;
 
 class GameService {
-    async create(data, user) {
-        const checkIfCanContinue = await this.checkIfNewCardForGame(user._id);
-
-        if (!checkIfCanContinue) throw new CustomError("You have already played all the cards");
+    async create(userId) {
+        const checkIfCanContinue = await this.checkIfNewCardForGame(userId);
+        if (!checkIfCanContinue) throw new CustomError("you have already played all the cards");
 
         // Check if the user has and oldGame
-        const oldGame = await Game.findOne({ userId: user._id });
-
-        // return the old game if it exists
+        const oldGame = await this.getOneByUser(userId).catch((e) => console.log("user does not have oldGame", e.message));
         if (oldGame) return { ...oldGame.toObject(), continue: true };
 
         // Create Game with userId if no oldGame
-        const game = await new Game({
-            userId: user._id
-        }).save();
-
-        // Return Cards populated
+        const game = await new Game({ user: userId }).save();
         return { ...game.toObject(), continue: false };
     }
 
-    async checkIfNewCardForGame(user) {
+    async getAll() {
+        return await Game.find({ isDeleted: false });
+    }
+
+    async getOneByUser(userId) {
+        return await Game.findOne({ user: userId, isDeleted: false });
+    }
+
+    async getAllByUser(userId) {
+        return await Game.find({ user: userId, isDeleted: false });
+    }
+
+    async checkIfNewCardForGame(userId) {
         // await Game.deleteMany({ }); // for easy testing delete all everytime
 
-        const game = await Game.findOne({ userId: user._id });
-
         // If there is no game for the user, return true
+        const game = await this.getOneByUser(userId).catch((e) => console.log("user does not have oldGame", e.message));
         if (!game) return true;
 
         // If there is a game for the user, check if there are any cards left
-        let newCard = false;
-        let newHashtag = false;
-
-        // If there are no cards left, return true
-        try {
-            newCard = await this.newCard(game._id);
-        } catch (error) {
-            /*do nothing*/
-        }
-
-        try {
-            newHashtag = await this.newHashtag(user, game._id);
-        } catch (error) {
-            /*do nothing*/
-        }
+        const newCard = await this.newCard(game._id).catch((e) => console.log("no new card is available", e.message));
+        const newHashtag = await this.newHashtag(game._id, userId).catch((e) => console.log("no new hashtag is available", e.message));
 
         if (!newCard && !newHashtag) return false;
 
@@ -56,161 +46,116 @@ class GameService {
         return true;
     }
 
-    async newCard(gameId) {
-        if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
+    async getOne(gameId) {
+        const game = await Game.findOne({ _id: gameId });
+        if (!game) throw new CustomError("game does not exist", 404);
+        return game;
+    }
 
-        const game = (await Game.find({ _id: gameId }))[0];
-        if (!game) throw new CustomError("Game does not exist");
+    async newCard(gameId) {
+        const game = await this.getOne(gameId);
 
         // Get a random card from the database that
-        // is not a parent card
-        // not have any of the same hashtags as the leftSwipedHashtags but
-        // has rightSwipedHashtags,
-        // has not been used in the game,
+        // - is not a parent card
+        // - does not have a hashtag in leftSwipedHashtags
+        // - have a card in rightSwipedHashtags,
+        // - has not been used in the game.
         const newRandomCard = await Card.aggregate([
             {
                 $match: {
-                    isDeleted: false,
                     isParent: false,
-                    _id: {
-                        $nin: game.rightSwipedCards.concat(game.leftSwipedCards)
-                    },
-                    hashtags: {
-                        $nin: game.leftSwipedHashtags,
-                        $in: game.rightSwipedHashtags
-                    }
+                    isDeleted: false,
+                    leftSwipedHashtags: { $not: { $in: game.leftSwipedHashtags } },
+                    rightSwipedHashtags: { $in: game.rightSwipedHashtags },
+                    _id: { $nin: game.rightSwipedCards.concat(game.leftSwipedCards) }
                 }
             },
             { $sample: { size: 1 } }
         ]);
 
-        if (newRandomCard.length === 0) throw new CustomError("All cards have been used");
+        if (newRandomCard.length === 0) throw new CustomError("all cards have been played");
 
-        // Populate the newRandomcard Hashtags
+        // Populate the card hashtags
         await Card.populate(newRandomCard, { path: "hashtags" });
 
-        // Return the new random card
-        return {
-            newCard: newRandomCard
-        };
+        // Return the card
+        return newRandomCard[0];
     }
 
-    async newHashtag(user, gameId) {
-        if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
+    async newHashtag(gameId, userId) {
+        const game = await this.getOne(gameId);
+        const user = await userService.getOne(userId);
 
-        const game = (await Game.find({ _id: gameId }))[0];
-        if (!game) throw new CustomError("Game does not exist");
+        // Query build up
+        const query = { $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags) };
 
-        const query = {
-            $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags)
-        };
+        // Check if the user is attached to an organisation and get all the organisation hashtags
+        if (user.organisation) query["$in"] = user.organisation.hashtags;
 
-        // Check if user is attached to an organisation
-        if (user.organisation) {
-            const organisation = await Organisation.findOne({
-                _id: user.organisation
-            });
-
-            // If the user is attached to an organisation, get all the hashtags
-            query["$in"] = organisation.hashtags.map((h) => h._id);
-        }
-
-        // Get a random card from the Card model that does not have any of the same id with the leftSwipedHashtags or rightSwipedHashtags and has not hashTags
+        // Get a random card (hashtag) from the database that
+        // - is not in the game leftSwipedHashtags
+        // - is not in the game rightSwipedHashtags
+        // - is a parent card
         const newRandomHashtag = await Card.aggregate([
             {
                 $match: {
-                    isDeleted: false,
                     isParent: true,
+                    isDeleted: false,
                     _id: query
                 }
             },
             { $sample: { size: 1 } }
         ]);
 
-        if (newRandomHashtag.length === 0) throw new CustomError("All hashtags have been used");
+        if (newRandomHashtag.length === 0) throw new CustomError("all hashtags have been used");
 
-        // Return the new random hashtag
-        return {
-            newHashtag: newRandomHashtag[0]
-        };
-    }
-
-    async getAll() {
-        return await Game.find({}, { __v: 0 }).populate("userId leftSwipedCards rightSwipedCards", "-userId -__v");
-    }
-
-    async getOne(gameId) {
-        if (!ObjectId.isValid(gameId)) throw new CustomError("Game does not exist");
-
-        const game = await Game.findOne({ _id: gameId });
-        if (!game) throw new CustomError("Game does not exist");
-
-        return game;
+        // Return the hashtag
+        return newRandomHashtag[0];
     }
 
     async addLeftSwipedCard(gameId, data) {
-        if (!data.cardId) throw new CustomError("Card Id is required");
-
+        if (!data.cardId) throw new CustomError("card id is required");
         const game = await Game.findOneAndUpdate({ _id: gameId }, { $push: { leftSwipedCards: { $each: [data.cardId], $position: 0 } } }, { new: true });
-
-        if (!game) throw new CustomError("Game does not exist");
-
+        if (!game) throw new CustomError("game does not exist", 404);
         return game;
     }
 
     async addRightSwipedCard(gameId, data) {
-        if (!data.cardId) throw new CustomError("Card Id is required");
-
-        const game = await Game.findOneAndUpdate(
-            { _id: gameId },
-            {
-                // $push: {
-                //   rightSwipedCards: { $each: [data.cardId], $position: 0 },
-                //   eloScores: 1500
-                // }
-                $push: { rightSwipedCards: data.cardId, eloScores: 1500 }
-            },
-            { new: true }
-        );
-
-        if (!game) throw new CustomError("Game does not exist");
-
-        return game;
-    }
-
-    async addLeftSwipedHashtag(gameId, data) {
-        if (!data.hashtagId) throw new CustomError("Hashtag Id is required");
-
-        const game = await Game.findOneAndUpdate({ _id: gameId }, { $push: { leftSwipedHashtags: data.hashtagId } }, { new: true });
-
-        if (!game) throw new CustomError("Game does not exist");
-
-        return game;
-    }
-
-    async addRightSwipedHashtag(gameId, data) {
-        if (!data.hashtagId) throw new CustomError("Hashtag Id is required");
-
-        const game = await Game.findOneAndUpdate({ _id: gameId }, { $push: { rightSwipedHashtags: data.hashtagId } }, { new: true });
-
-        if (!game) throw new CustomError("Game does not exist");
-
+        if (!data.cardId) throw new CustomError("card id is required");
+        const game = await Game.findOneAndUpdate({ _id: gameId }, { $push: { rightSwipedCards: data.cardId } }, { new: true });
+        if (!game) throw new CustomError("game does not exist", 404);
         return game;
     }
 
     async updateRightSwipedCards(gameId, data) {
-        if (!data.cardIds) throw new CustomError("card Ids are required");
-        if (!data.eloScores) throw new CustomError("Elo Rating Scores are required");
-
-        const game = await Game.findOneAndUpdate({ _id: gameId }, { $set: { rightSwipedCards: data.cardIds, eloScores: data.eloScores } }, { new: true });
-
-        if (!game) throw new CustomError("Game does not exist");
-
+        if (!data.cardIds) throw new CustomError("card id's are required");
+        const game = await this.update(gameId, { rightSwipedCards: data.cardIds });
         return game;
     }
 
-    async getAllByUser(user) {
-        return await Game.findOne({ userId: user._id }, { __v: 0 });
+    async addLeftSwipedHashtag(gameId, data) {
+        if (!data.hashtagId) throw new CustomError("hashtag id is required");
+        const game = await Game.findOneAndUpdate({ _id: gameId }, { $push: { leftSwipedHashtags: data.hashtagId } }, { new: true });
+        if (!game) throw new CustomError("game does not exist", 404);
+        return game;
+    }
+
+    async addRightSwipedHashtag(gameId, data) {
+        if (!data.hashtagId) throw new CustomError("hashtag id is required");
+        const game = await Game.findOneAndUpdate({ _id: gameId }, { $push: { rightSwipedHashtags: data.hashtagId } }, { new: true });
+        if (!game) throw new CustomError("game does not exist", 404);
+        return game;
+    }
+
+    async update(gameId, data) {
+        const game = await Game.findByIdAndUpdate({ _id: gameId }, { $set: data }, { new: true });
+        if (!game) throw new CustomError("game does not exist", 404);
+        return game;
+    }
+
+    async delete(gameId) {
+        const game = await this.update(gameId, { isDeleted: true });
+        return game;
     }
 }
 

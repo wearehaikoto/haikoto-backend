@@ -1,65 +1,80 @@
-const response = require("../utils/response");
-const GameService = require("../services/game.service.js");
+const response = require("./../utils/response");
+const GameServ = require("./../services/game.service");
 
 class GameContoller {
     async create(req, res) {
-        const result = await GameService.create(req.body, req.$user);
-        res.status(200).send(response("game created successfully", result));
-    }
-
-    async checkIfNewCardForGame(req, res) {
-        const result = await GameService.checkIfNewCardForGame(req.$user);
-        res.status(200).send(response("check if cards are available", result));
-    }
-
-    async newCard(req, res) {
-        const result = await GameService.newCard(req.params.gameId);
-        res.status(200).send(response("new card added successfully", result));
-    }
-
-    async newHashtag(req, res) {
-        const result = await GameService.newHashtag(req.$user, req.params.gameId);
-        res.status(200).send(response("new hashtag added successfully", result));
+        const result = await GameServ.create(req.$user._id);
+        res.status(201).send(response("game created", result));
     }
 
     async getAll(req, res) {
-        const result = await GameService.getAll();
-        res.status(200).send(response("all games", result));
+        const result = await GameServ.getAll();
+        res.status(200).send(response("all game", result));
+    }
+
+    async getOneByMe(req, res) {
+        const result = await GameServ.getOneByUser(req.$user._id);
+        res.status(200).send(response("game by user", result));
+    }
+
+    async getOneByUser(req, res) {
+        const result = await GameServ.getOneByUser(req.params.userId);
+        res.status(200).send(response("game by user", result));
+    }
+
+    async checkIfNewCardForGame(req, res) {
+        const result = await GameServ.checkIfNewCardForGame(req.$user._id);
+        res.status(200).send(response("game query", result));
     }
 
     async getOne(req, res) {
-        const result = await GameService.getOne(req.params.gameId);
+        const result = await GameServ.getOne(req.params.gameId);
         res.status(200).send(response("game data", result));
     }
 
+    async newCard(req, res) {
+        const result = await GameServ.newCard(req.params.gameId);
+        res.status(200).send(response("new card", result));
+    }
+
+    async newHashtag(req, res) {
+        const result = await GameServ.newHashtag(req.params.gameId, req.$user._id);
+        res.status(200).send(response("new hashtag", result));
+    }
+
     async addLeftSwipedCard(req, res) {
-        const result = await GameService.addLeftSwipedCard(req.params.gameId, req.body);
-        res.status(200).send(response("leftSwiped card added", result));
+        const result = await GameServ.addLeftSwipedCard(req.params.gameId, req.body);
+        res.status(200).send(response("new left swiped card added", result));
     }
 
     async addRightSwipedCard(req, res) {
-        const result = await GameService.addRightSwipedCard(req.params.gameId, req.body);
-        res.status(200).send(response("rightSwiped card added", result));
-    }
-
-    async addLeftSwipedHashtag(req, res) {
-        const result = await GameService.addLeftSwipedHashtag(req.params.gameId, req.body);
-        res.status(200).send(response("leftSwiped hashtag added", result));
-    }
-
-    async addRightSwipedHashtag(req, res) {
-        const result = await GameService.addRightSwipedHashtag(req.params.gameId, req.body);
-        res.status(200).send(response("rightSwiped hashtag added", result));
+        const result = await GameServ.addRightSwipedCard(req.params.gameId, req.body);
+        res.status(200).send(response("new right swiped card added", result));
     }
 
     async updateRightSwipedCards(req, res) {
-        const result = await GameService.updateRightSwipedCards(req.params.gameId, req.body);
-        res.status(200).send(response("rightSwiped cards updated", result));
+        const result = await GameServ.updateRightSwipedCards(req.params.gameId, req.body);
+        res.status(200).send(response("right swiped cards updated", result));
     }
 
-    async getAllByUser(req, res) {
-        const result = await GameService.getAllByUser(req.$user);
-        res.status(200).send(response(`All Games Played By ${req.$user.codeName}`, result));
+    async addLeftSwipedHashtag(req, res) {
+        const result = await GameServ.addLeftSwipedHashtag(req.params.gameId, req.body);
+        res.status(200).send(response("new left swiped hashtag added", result));
+    }
+
+    async addRightSwipedHashtag(req, res) {
+        const result = await GameServ.addRightSwipedHashtag(req.params.gameId, req.body);
+        res.status(200).send(response("new right swiped hashtag added", result));
+    }
+
+    async update(req, res) {
+        const result = await GameServ.update(req.params.gameId, req.body);
+        res.status(200).send(response("game updated", result));
+    }
+
+    async delete(req, res) {
+        const result = await GameServ.delete(req.params.gameId);
+        res.status(200).send(response("game deleted", result));
     }
 }
 

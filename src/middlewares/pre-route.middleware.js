@@ -15,21 +15,21 @@ module.exports = (app) => {
     app.use(cors());
 
     // Secure the app by setting various HTTP headers off.
-    app.use(helmet());
+    app.use(helmet({ contentSecurityPolicy: false }));
 
     // Logger
-    app.use(morgan("dev"));
+    app.use(morgan("common"));
 
     // Tell express to recognize the incoming Request Object as a JSON Object
     app.use(express.json());
 
-    // app.use(express.static("/public"));
+    // app.use(express.static(path.join(__dirname, "..", "..", "public")));
 
     // Express body parser
     app.use(express.urlencoded({ extended: true }));
 
-    // Serve Uploads
-    app.use("/uploads", express.static("/uploads"));
+    // Server Uploads
+    app.use("/uploads", express.static(path.join(__dirname, "..", "..", "uploads")));
 
     return app;
 };

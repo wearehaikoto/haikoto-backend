@@ -1,42 +1,36 @@
-const { role } = require("../config");
+const { role } = require("./../config");
 const router = require("express").Router();
-const authGuard = require("../middlewares/auth.middleware");
-const GameCtrl = require("../controllers/game.controller.js");
+const auth = require("./../middlewares/auth.middleware");
+const GameCtrl = require("./../controllers/game.controller");
 
-// @route   GET /api/game/
-router.get("/", authGuard(role.USER), GameCtrl.getAll);
+router.post("/", auth(role.ADMIN), GameCtrl.create);
 
-// @route   GET /api/game/me
-router.get("/me", authGuard(role.USER), GameCtrl.getAllByUser);
+router.get("/", auth(role.USER), GameCtrl.getAll);
 
-// @route   GET /api/game/checkIfNewCardForGame
-router.get("/checkIfNewCardForGame", authGuard(role.USER), GameCtrl.checkIfNewCardForGame);
+router.get("/user/me", auth(role.USER), GameCtrl.getOneByMe);
 
-// @route   GET /api/game/:gameId
-router.get("/:gameId", authGuard(role.USER), GameCtrl.getOne);
+router.get("/game/check-new-card", auth(role.USER), GameCtrl.checkIfNewCardForGame);
 
-// @route   POST /api/game/create
-router.post("/create", authGuard(role.USER), GameCtrl.create);
+router.get("/user/:userId", auth(role.ADMIN), GameCtrl.getOneByUser);
 
-// @route   POST /api/game/:gameId/newCard
-router.post("/:gameId/newCard", authGuard(role.USER), GameCtrl.newCard);
+router.get("/:gameId", auth(role.USER), GameCtrl.getOne);
 
-// @route   POST /api/game/:gameId/newCard
-router.post("/:gameId/newHashtag", authGuard(role.USER), GameCtrl.newHashtag);
+router.post("/:gameId/card/new", auth(role.USER), GameCtrl.newCard);
 
-// @route   PUT /api/game/:gameId/addLeftSwipedCard
-router.put("/:gameId/addLeftSwipedCard", authGuard(role.USER), GameCtrl.addLeftSwipedCard);
+router.post("/:gameId/hashtag/new", auth(role.USER), GameCtrl.newHashtag);
 
-// @route   PUT /api/game/:gameId/addRightSwipedCard
-router.put("/:gameId/addRightSwipedCard", authGuard(role.USER), GameCtrl.addRightSwipedCard);
+router.post("/:gameId/card/add-left-swiped-card", authGuard(role.USER), GameCtrl.addLeftSwipedCard);
 
-// @route   PUT /api/game/:gameId/addLeftSwipedHashtag
-router.put("/:gameId/addLeftSwipedHashtag", authGuard(role.USER), GameCtrl.addLeftSwipedHashtag);
+router.post("/:gameId/card/add-right-swiped-card", authGuard(role.USER), GameCtrl.addRightSwipedCard);
 
-// @route   PUT /api/game/:gameId/addRightSwipedHashtag
-router.put("/:gameId/addRightSwipedHashtag", authGuard(role.USER), GameCtrl.addRightSwipedHashtag);
+router.put("/:gameId/card/update-right-swiped-cards", authGuard(role.USER), GameCtrl.updateRightSwipedCards);
 
-// @route   PATCH /api/game/:gameId/updateRightSwipedCards
-router.patch("/:gameId/updateRightSwipedCards", authGuard(role.USER), GameCtrl.updateRightSwipedCards);
+router.post("/:gameId/hashtag/add-left-swiped-hashtag", authGuard(role.USER), GameCtrl.addLeftSwipedHashtag);
+
+router.post("/:gameId/hashtag/add-right-swiped-hashtag", authGuard(role.USER), GameCtrl.addRightSwipedHashtag);
+
+router.put("/:gameId", auth(role.ADMIN), GameCtrl.update);
+
+router.delete("/:gameId", auth(role.ADMIN), GameCtrl.delete);
 
 module.exports = router;

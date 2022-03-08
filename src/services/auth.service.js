@@ -1,41 +1,45 @@
-const User = require("./../models/user.model");
-const TokenService = require("./token.service");
-const CustomError = require("./../utils/custom-error");
+const JWT = require("jsonwebtoken");
+const { JWT_SECRET } = require("../config");
+const User = require("../models/user.model");
+const CustomError = require("../utils/custom-error");
 
 class AuthService {
-    // User sign up
-    async signup(data) {
-        // Create user in database
-        const user = new User(data);
-        await user.save();
+    async register(data) {
+        if (!data.codeName) throw new CustomError("code name is required");
 
-        // Generate token
-        const token = await TokenService.generateToken(user);
+        // Create user
+        const user = await new User(data).save();
+
+        // Generate JWT
+        const token = await JWT.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 60 * 60 });
 
         return (data = {
-            user,
-            token
+            _id: user._id,
+            codeName: user.codeName,
+            role: user.role,
+            token: token
         });
     }
 
-    // User loginOrSignup
-    async loginOrSignup(data) {
-        if (!data.codeName) throw new CustomError("codeName is required");
+    async login(data) {
+        if (!data.codeName) throw new CustomError("code name is required");
 
-        // Check if user with orgId already exist
+        // Check if user exist, pass organisation (if any)
         const user = await User.findOne({ codeName: data.codeName, organisation: data.organisation });
 
-        // Create user if not exist
+        // If user does not exist, create new user
         if (!user) {
-            return await this.signup(data);
+            return await this.register(data);
         }
 
-        // Generate token
-        const token = await TokenService.generateToken(user);
+        // Generate JWT
+        const token = await JWT.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 60 * 60 });
 
         return (data = {
-            user,
-            token
+            _id: user._id,
+            codeName: user.codeName,
+            role: user.role,
+            token: token
         });
     }
 }

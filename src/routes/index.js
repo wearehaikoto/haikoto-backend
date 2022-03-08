@@ -1,18 +1,21 @@
 const router = require("express").Router();
-const trimIncomingRequests = require("../middlewares/trim-incoming-requests.middleware");
 
 // Trim all incoming requests
-router.use(trimIncomingRequests);
+router.use(require("./../middlewares/trim-incoming-requests.middleware"));
 
-router.use("/auth", require("./auth.route.js"));
+router.use("/auth", require("./auth.route"));
 
-router.use("/user", require("./user.route.js"));
+router.use("/cards", require("./card.route"));
 
-router.use("/card", require("./card.route.js"));
+router.use("/games", require("./game.route"));
 
-router.use("/game", require("./game.route.js"));
+router.use("/organisations", require("./organisation.route"));
 
-router.use("/organisation", require("./organisation.route.js"));
+router.use("/users", require("./user.route"));
+
+router.get("/", (req, res) => {
+    return res.status(200).json({ message: "Hello world from haikoto! :)" });
+});
 
 // Allow Playground to be accessed from localhost
 if (process.env.NODE_ENV !== "production") {

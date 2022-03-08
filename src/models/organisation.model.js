@@ -5,14 +5,27 @@ const organisationSchema = new Schema(
     {
         name: {
             type: String,
-            required: true
+            required: true,
+            trim: true
         },
-        url_slug: {
+        slugUrl: {
             type: String,
+            required: true,
             unique: true
         },
-        logo: {
-            type: String
+        logoUrl: {
+            type: String,
+            required: true
+        },
+        isActive: {
+            type: Boolean,
+            required: true,
+            default: true
+        },
+        isDeleted: {
+            type: Boolean,
+            required: true,
+            default: false
         },
         hashtags: {
             type: [
@@ -23,10 +36,6 @@ const organisationSchema = new Schema(
                 }
             ],
             required: true
-        },
-        isDeleted: {
-            type: Boolean,
-            default: false
         }
     },
     {
@@ -36,6 +45,7 @@ const organisationSchema = new Schema(
 
 organisationSchema.pre("findOne", function (next) {
     this.populate("hashtags");
+
     next();
 });
 

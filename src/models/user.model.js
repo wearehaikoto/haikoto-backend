@@ -4,12 +4,12 @@ const userSchema = new mongoose.Schema(
     {
         codeName: {
             type: String,
-            trim: true,
-            required: true
+            required: true,
+            trim: true
         },
         role: {
             type: String,
-            trim: true,
+            required: true,
             enum: ["user", "admin"],
             default: "user"
         },
@@ -18,8 +18,14 @@ const userSchema = new mongoose.Schema(
             required: false,
             ref: "organisation"
         },
+        isActive: {
+            type: Boolean,
+            required: true,
+            default: true
+        },
         isDeleted: {
             type: Boolean,
+            required: true,
             default: false
         }
     },
@@ -30,8 +36,8 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre("findOne", function (next) {
     this.populate("organisation");
+
     next();
 });
 
-// Export the model
 module.exports = mongoose.model("user", userSchema);

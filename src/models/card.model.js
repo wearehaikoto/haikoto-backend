@@ -1,19 +1,30 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const cardSchema = new mongoose.Schema(
+const cardSchema = new Schema(
     {
-        userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-            ref: "user"
-        },
         title: {
             type: String,
             required: true
         },
-        image: {
+        imageUrl: {
             type: String,
             required: true
+        },
+        isParent: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        isDeleted: {
+            type: Boolean,
+            required: true,
+            default: false
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: "user"
         },
         hashtags: {
             type: [
@@ -24,19 +35,6 @@ const cardSchema = new mongoose.Schema(
                 }
             ],
             required: true
-        },
-        eloRating: {
-            type: Number,
-            default: 1500
-        },
-        isParent: {
-            type: Boolean,
-            required: true,
-            default: false
-        },
-        isDeleted: {
-            type: Boolean,
-            default: false
         }
     },
     {
@@ -45,10 +43,10 @@ const cardSchema = new mongoose.Schema(
 );
 
 cardSchema.pre("findOne", function (next) {
-    this.populate("userId", "_id codeName name");
+    this.populate("user", "_id codeName name");
     this.populate("hashtags");
+
     next();
 });
 
-// Export the model
 module.exports = mongoose.model("card", cardSchema);

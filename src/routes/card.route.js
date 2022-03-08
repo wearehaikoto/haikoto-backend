@@ -1,30 +1,22 @@
-const { role } = require("../config");
+const { role } = require("./../config");
 const router = require("express").Router();
-const authGuard = require("../middlewares/auth.middleware");
-const CardCtrl = require("../controllers/card.controller.js");
+const auth = require("./../middlewares/auth.middleware");
+const CardCtrl = require("./../controllers/card.controller");
 
-// @route   GET /api/card/
-router.get("/", authGuard(role.ADMIN), CardCtrl.getAll);
+router.post("/", auth(role.ADMIN), CardCtrl.create);
 
-// @route   GET /api/card/me
-router.get("/me", authGuard(role.USER), CardCtrl.getAllByUser);
+router.get("/", auth(role.ADMIN), CardCtrl.getAll);
 
-// @route   GET /api/card/getAllCardsAsHashtag
-router.get("/getAllCardsAsHashtag", authGuard(role.USER), CardCtrl.getAllCardsAsHashtag);
+router.get("/user/me", auth(role.USER), CardCtrl.getAllByMe);
 
-// @route   GET /api/card/:cardId
-router.get("/:cardId", authGuard(role.USER), CardCtrl.getOne);
+router.get("/user/:userId", auth(role.ADMIN), CardCtrl.getAllByUser);
 
-// @route   POST /api/card/create
-router.post("/create", authGuard(role.USER), CardCtrl.create);
+router.get("/hashtags", auth(role.USER), CardCtrl.getAllHashtags);
 
-// @route   PUT /api/card/elo_rating_update
-// router.put("/elo_rating_update", authGuard(role.USER), CardCtrl.eloRatingUpdate);
+router.get("/:cardId", auth(role.USER), CardCtrl.getOne);
 
-// @route   PUT /api/card/
-router.put("/:cardId/", authGuard(role.USER), CardCtrl.update);
+router.put("/:cardId", auth(role.ADMIN), CardCtrl.update);
 
-// @route   DELETE /api/card/:cardId
-router.delete("/:cardId", authGuard(role.USER), CardCtrl.delete);
+router.delete("/:cardId", auth(role.ADMIN), CardCtrl.delete);
 
 module.exports = router;
