@@ -11,7 +11,7 @@ class AuthService {
         const user = await new User(data).save();
 
         // Generate JWT
-        const token = await JWT.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 60 * 60 });
+        const token = await JWT.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 60 * 60 * 24 });
 
         return (data = {
             _id: user._id,
@@ -33,7 +33,7 @@ class AuthService {
         }
 
         // Generate JWT
-        const token = await JWT.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 60 * 60 });
+        const token = await JWT.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: 60 * 60 * 24 });
 
         return (data = {
             _id: user._id,

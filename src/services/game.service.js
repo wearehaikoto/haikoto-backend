@@ -30,7 +30,7 @@ class GameService {
     }
 
     async checkIfNewCardForGame(userId) {
-        // await Game.deleteMany({ }); // for easy testing delete all everytime
+        // await Game.deleteMany({}); // for easy testing delete all everytime
 
         // If there is no game for the user, return true
         const game = await this.getOneByUser(userId).catch((e) => console.log("user does not have oldGame", e.message));
@@ -65,9 +65,16 @@ class GameService {
                 $match: {
                     isParent: false,
                     isDeleted: false,
-                    leftSwipedHashtags: { $not: { $in: game.leftSwipedHashtags } },
-                    rightSwipedHashtags: { $in: game.rightSwipedHashtags },
-                    _id: { $nin: game.rightSwipedCards.concat(game.leftSwipedCards) }
+                    hashtags: {
+                        $nin: game.leftSwipedHashtags,
+                        $in: game.rightSwipedHashtags
+                    },
+                    _id: {
+                        $nin: game.leftSwipedCards
+                            .map((c) => c._id)
+                            .concat(game.rightSwipedCards)
+                            .map((c) => c._id)
+                    }
                 }
             },
             { $sample: { size: 1 } }
@@ -87,7 +94,12 @@ class GameService {
         const user = await userService.getOne(userId);
 
         // Query build up
-        const query = { $nin: game.leftSwipedHashtags.concat(game.rightSwipedHashtags) };
+        const query = {
+            $nin: game.leftSwipedHashtags
+                .map((c) => c._id)
+                .concat(game.rightSwipedHashtags)
+                .map((c) => c._id)
+        };
 
         // Check if the user is attached to an organisation and get all the organisation hashtags
         if (user.organisation) query["$in"] = user.organisation.hashtags;

@@ -9,7 +9,7 @@ router.get("/", auth(role.USER), GameCtrl.getAll);
 
 router.get("/user/me", auth(role.USER), GameCtrl.getOneByMe);
 
-router.get("/game/check-new-card", auth(role.USER), GameCtrl.checkIfNewCardForGame);
+router.get("/user/check-new-card", auth(role.USER), GameCtrl.checkIfNewCardForGame);
 
 router.get("/user/:userId", auth(role.ADMIN), GameCtrl.getOneByUser);
 

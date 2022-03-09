@@ -39,8 +39,10 @@ class OrganisationService {
 
     async update(organisationId, data) {
         // Check the slug is unique
-        const slugExist = await Organisation.findOne({ slugUrl: data.slugUrl });
-        if (slugExist && slugExist.id !== organisationId) throw new CustomError("another organisation with this slug already exists");
+        if (data.slugUrl) {
+            const slugExist = await Organisation.findOne({ slugUrl: data.slugUrl });
+            if (slugExist && slugExist.id !== organisationId) throw new CustomError("another organisation with this slug already exists");
+        }
 
         const organisation = await Organisation.findByIdAndUpdate({ _id: organisationId }, { $set: data }, { new: true });
         if (!organisation) throw new CustomError("organisation does not exist", 404);

@@ -11,9 +11,9 @@ router.get("/me", auth(role.USER), UserCtrl.getMe);
 
 router.get("/:userId", auth(role.ADMIN), UserCtrl.getOne);
 
-router.put("/:userId", auth(role.USER), UserCtrl.update);
+router.put("/:userId", auth(role.ADMIN), UserCtrl.update);
 
-router.patch("/:userId/update-role", auth(role.USER), UserCtrl.updateRole);
+router.patch("/:userId/update-role", auth(role.ADMIN), UserCtrl.updateRole);
 
 router.delete("/:userId", auth(role.ADMIN), UserCtrl.delete);
 
