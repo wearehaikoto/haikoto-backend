@@ -20,7 +20,8 @@ router.get("/", (req, res) => {
 // Allow Playground to be accessed from localhost
 if (process.env.NODE_ENV !== "production") {
     router.use("/playground", async (req, res) => {
-        res.json({});
+        const results = {};
+        res.json(results);
     });
 }
 
