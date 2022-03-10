@@ -3,9 +3,9 @@ const router = require("express").Router();
 const auth = require("./../middlewares/auth.middleware");
 const GameCtrl = require("./../controllers/game.controller");
 
-router.post("/", auth(role.ADMIN), GameCtrl.create);
+router.post("/", auth(role.USER), GameCtrl.create);
 
-router.get("/", auth(role.USER), GameCtrl.getAll);
+router.get("/", auth(role.ADMIN), GameCtrl.getAll);
 
 router.get("/user/me", auth(role.USER), GameCtrl.getOneByMe);
 
