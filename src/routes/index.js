@@ -9,6 +9,8 @@ router.use("/cards", require("./card.route"));
 
 router.use("/games", require("./game.route"));
 
+router.use("/hashtags", require("./hashtag.route"));
+
 router.use("/organisations", require("./organisation.route"));
 
 router.use("/users", require("./user.route"));

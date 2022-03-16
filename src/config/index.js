@@ -9,7 +9,7 @@ const config = {
     },
     url: {
         CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3000"
-    },
+    }
 };
 
 module.exports = config;

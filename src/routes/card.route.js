@@ -7,11 +7,11 @@ router.post("/", auth(role.ADMIN), CardCtrl.create);
 
 router.get("/", auth(role.ADMIN), CardCtrl.getAll);
 
+router.get("/with-hashtags", auth(role.USER), CardCtrl.getAllWithHashtags);
+
 router.get("/user/me", auth(role.USER), CardCtrl.getAllByMe);
 
 router.get("/user/:userId", auth(role.ADMIN), CardCtrl.getAllByUser);
-
-router.get("/hashtags", auth(role.USER), CardCtrl.getAllHashtags);
 
 router.get("/:cardId", auth(role.USER), CardCtrl.getOne);
 

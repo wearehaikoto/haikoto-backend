@@ -32,7 +32,7 @@ const organisationSchema = new Schema(
                 {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
-                    ref: "card"
+                    ref: "hashtag"
                 }
             ],
             required: true

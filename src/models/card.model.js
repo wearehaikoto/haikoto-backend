@@ -11,11 +11,6 @@ const cardSchema = new Schema(
             type: String,
             required: true
         },
-        isParent: {
-            type: Boolean,
-            required: true,
-            default: false
-        },
         isDeleted: {
             type: Boolean,
             required: true,
@@ -31,7 +26,7 @@ const cardSchema = new Schema(
                 {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
-                    ref: "card"
+                    ref: "hashtag"
                 }
             ],
             required: true

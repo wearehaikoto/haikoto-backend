@@ -33,7 +33,7 @@ const gameSchema = new Schema(
                 {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
-                    ref: "card"
+                    ref: "hashtag"
                 }
             ],
             required: true
@@ -43,7 +43,7 @@ const gameSchema = new Schema(
                 {
                     type: mongoose.Schema.Types.ObjectId,
                     required: true,
-                    ref: "card"
+                    ref: "hashtag"
                 }
             ],
             required: true

@@ -12,6 +12,11 @@ class CardContoller {
         res.status(200).send(response("all card", result));
     }
 
+    async getAllWithHashtags(req, res) {
+        const result = await CardServ.getAllWithHashtags();
+        res.status(200).send(response("all cards with hashtags", result));
+    }
+
     async getAllByMe(req, res) {
         const result = await CardServ.getAllByUser(req.$user._id);
         res.status(200).send(response("all card", result));
@@ -19,11 +24,6 @@ class CardContoller {
 
     async getAllByUser(req, res) {
         const result = await CardServ.getAllByUser(req.params.userId);
-        res.status(200).send(response("all card", result));
-    }
-
-    async getAllHashtags(req, res) {
-        const result = await CardServ.getAllHashtags();
         res.status(200).send(response("all card", result));
     }
 

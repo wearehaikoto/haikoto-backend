@@ -1,6 +1,7 @@
-const userService = require("./user.service");
+const UserService = require("./user.service");
 const Card = require("./../models/card.model");
 const Game = require("./../models/game.model");
+const Hashtag = require("./../models/hashtag.model");
 const CustomError = require("./../utils/custom-error");
 
 class GameService {
@@ -55,6 +56,8 @@ class GameService {
     async newCard(gameId) {
         const game = await this.getOne(gameId);
 
+        // Top Level Parent
+
         // Get a random card from the database that
         // - is not a parent card
         // - does not have a hashtag in leftSwipedHashtags
@@ -63,7 +66,6 @@ class GameService {
         const newRandomCard = await Card.aggregate([
             {
                 $match: {
-                    isParent: false,
                     isDeleted: false,
                     hashtags: {
                         $nin: game.leftSwipedHashtags,
@@ -91,33 +93,52 @@ class GameService {
 
     async newHashtag(gameId, userId) {
         const game = await this.getOne(gameId);
-        const user = await userService.getOne(userId);
+        const user = await UserService.getOne(userId);
 
         // Query build up
         const query = {
             $nin: game.leftSwipedHashtags
-                .map((c) => c._id)
+                .map((hashtag) => hashtag._id)
                 .concat(game.rightSwipedHashtags)
-                .map((c) => c._id)
+                .map((hashtag) => hashtag._id)
         };
 
-        // Check if the user is attached to an organisation and get all the organisation hashtags
-        if (user.organisation) query["$in"] = user.organisation.hashtags;
-
-        // Get a random card (hashtag) from the database that
-        // - is not in the game leftSwipedHashtags
-        // - is not in the game rightSwipedHashtags
-        // - is a parent card
-        const newRandomHashtag = await Card.aggregate([
+        // Get one Hashtag where
+        // - parentHashtag is NULL
+        // - is not used in the game
+        const newRandomParentHashtag = await Hashtag.aggregate([
             {
                 $match: {
-                    isParent: true,
                     isDeleted: false,
+                    parentHashtag: null,
                     _id: query
                 }
             },
             { $sample: { size: 1 } }
         ]);
+
+        // Return the hashtag
+        if (newRandomParentHashtag.length !== 0) return newRandomParentHashtag[0];
+
+
+        // Get one Hashtag where
+        // - parentHashtag is not null and is same as one of the hashtags in rightSwipedHashtags
+        // - is not used in the game
+        const newRandomHashtag = await Hashtag.aggregate([
+            {
+                $match: {
+                    isDeleted: false,
+                    parentHashtag: {
+                        $in: game.rightSwipedHashtags.map((hashtag) => hashtag._id)
+                    },
+                    _id: query
+                }
+            },
+            { $sample: { size: 1 } }
+        ]);
+
+        // Check if the user is attached to an organisation and get all the organisation hashtags
+        // if (user.organisation) query["$in"] = user.organisation.hashtags;
 
         if (newRandomHashtag.length === 0) throw new CustomError("all hashtags have been used");
 
