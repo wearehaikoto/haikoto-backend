@@ -1,4 +1,4 @@
-const ObjectId = require("mongoose").Types.ObjectId;
+const HashtagService = require("./hashtag.service");
 const Organisation = require("./../models/organisation.model");
 const CustomError = require("./../utils/custom-error");
 
@@ -11,7 +11,7 @@ class OrganisationService {
 
         // Check that hashtags are valid cardId's
         for (let i = 0; i < data.hashtags.length; i++) {
-            if (!ObjectId.isValid(data.hashtags[i])) throw new CustomError("invalid hashtag");
+            await HashtagService.getOne(data.hashtags[i]);
         }
 
         // Check the slug is unique

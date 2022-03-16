@@ -103,6 +103,9 @@ class GameService {
                 .map((hashtag) => hashtag._id)
         };
 
+        // Check if the user is attached to an organisation and get all the organisation hashtags
+        if (user.organisation) query["$in"] = user.organisation.hashtags;
+
         // Get one Hashtag where
         // - parentHashtag is NULL
         // - is not used in the game
@@ -120,6 +123,8 @@ class GameService {
         // Return the hashtag
         if (newRandomParentHashtag.length !== 0) return newRandomParentHashtag[0];
 
+        // Delete $in from query for the next query
+        delete query["$in"];
 
         // Get one Hashtag where
         // - parentHashtag is not null and is same as one of the hashtags in rightSwipedHashtags
@@ -136,9 +141,6 @@ class GameService {
             },
             { $sample: { size: 1 } }
         ]);
-
-        // Check if the user is attached to an organisation and get all the organisation hashtags
-        // if (user.organisation) query["$in"] = user.organisation.hashtags;
 
         if (newRandomHashtag.length === 0) throw new CustomError("all hashtags have been used");
 
