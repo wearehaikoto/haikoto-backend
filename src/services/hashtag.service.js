@@ -4,6 +4,7 @@ const CustomError = require("./../utils/custom-error");
 class HashtagService {
     async create(data) {
         if (!data.title) throw new CustomError("hashtag title is required");
+        if (!data.description) throw new CustomError("hashtag description is required");
         if (!data.imageUrl) throw new CustomError("hashtag image is required");
 
         if (data.parentHashtag) {
