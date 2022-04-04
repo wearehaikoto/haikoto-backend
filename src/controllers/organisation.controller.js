@@ -17,6 +17,11 @@ class OrganisationContoller {
         res.status(200).send(response("organisation data", result));
     }
 
+    async getOneExportData(req, res) {
+        const result = await OrganisationServ.getOneExportData(req.params.organisationId);
+        res.status(200).send(response("organisation export data", result));
+    }
+
     async getOne(req, res) {
         const result = await OrganisationServ.getOne(req.params.organisationId);
         res.status(200).send(response("organisation data", result));

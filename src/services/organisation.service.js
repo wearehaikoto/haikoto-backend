@@ -1,3 +1,5 @@
+const GameService = require("./game.service");
+const UserService = require("./user.service");
 const HashtagService = require("./hashtag.service");
 const Organisation = require("./../models/organisation.model");
 const CustomError = require("./../utils/custom-error");
@@ -29,6 +31,22 @@ class OrganisationService {
         const organisation = await Organisation.findOne({ slugUrl });
         if (!organisation) throw new CustomError("organisation does not exist", 404);
         return organisation;
+    }
+
+    async getOneExportData(organisationId) {
+        const organisation = await Organisation.findOne({ _id: organisationId });
+        if (!organisation) throw new CustomError("organisation does not exist", 404);
+
+        // Get all games from organisation
+        const games = await GameService.getAllByOrganisation(organisationId, true);
+
+        // Get all users from organisation
+        const users = await UserService.getAllFromOrganisation(organisationId);
+
+        // Merge games and users
+        const exportData = { games, users };
+
+        return exportData;
     }
 
     async getOne(organisationId) {

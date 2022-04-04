@@ -10,6 +10,14 @@ class UserService {
         return await User.find({ isDeleted: false }, { password: 0, __v: 0 });
     }
 
+    async getAll() {
+        return await User.find({ isDeleted: false }, { password: 0, __v: 0 });
+    }
+
+    async getAllFromOrganisation(organisationId) {
+        return await User.find({ organisation: organisationId, isDeleted: false }, { password: 0, __v: 0 });
+    }
+
     async getOne(userId) {
         const user = await User.findOne({ _id: userId }, { password: 0, __v: 0 });
         if (!user) throw new CustomError("user does not exist", 404);

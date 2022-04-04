@@ -22,6 +22,22 @@ class GameService {
         return await Game.find({ isDeleted: false });
     }
 
+    async getAllByOrganisation(organisationId, shouldPopulate = false) {
+        // Get all Id's of users from organisation
+        const usersFromOrganisation = await UserService.getAllFromOrganisation(organisationId);
+        const userIds = usersFromOrganisation.map((user) => user._id);
+
+        // Get all games from users
+        const games = Game.find({ user: { $in: userIds }, isDeleted: false });
+
+        if (shouldPopulate) {
+            games.populate("leftSwipedCards rightSwipedCards leftSwipedHashtags rightSwipedHashtags");
+        }
+
+        // Return games
+        return await games;
+    }
+
     async getOneByUser(userId) {
         return await Game.findOne({ user: userId, isDeleted: false });
     }

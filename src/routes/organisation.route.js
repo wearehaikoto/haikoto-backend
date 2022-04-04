@@ -9,6 +9,8 @@ router.get("/", auth(role.ADMIN), OrganisationCtrl.getAll);
 
 router.get("/slug/:slugUrl", OrganisationCtrl.getOneBySlugUrl);
 
+router.get("/export/:organisationId", OrganisationCtrl.getOneExportData);
+
 router.get("/:organisationId", auth(role.ADMIN), OrganisationCtrl.getOne);
 
 router.put("/:organisationId", auth(role.ADMIN), OrganisationCtrl.update);
