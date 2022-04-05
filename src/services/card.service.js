@@ -5,7 +5,7 @@ const CustomError = require("./../utils/custom-error");
 class CardService {
     async create(data, userId) {
         if (!data.title) throw new CustomError("card title is required");
-        if (!data.description) throw new CustomError("card description is required");
+        // if (!data.description) throw new CustomError("card description is required");
         if (!data.imageUrl) throw new CustomError("card image is required");
         if (!data.hashtags) data.hashtags = [];
 
