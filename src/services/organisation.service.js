@@ -1,6 +1,5 @@
 const GameService = require("./game.service");
 const UserService = require("./user.service");
-const HashtagService = require("./hashtag.service");
 const Organisation = require("./../models/organisation.model");
 const CustomError = require("./../utils/custom-error");
 
@@ -9,12 +8,6 @@ class OrganisationService {
         if (!data.name) throw new CustomError("organisation name is required");
         if (!data.slugUrl) throw new CustomError("Organisation slug is required");
         if (!data.logoUrl) throw new CustomError("Organisation logo is required");
-        if (!data.hashtags) data.hashtags = [];
-
-        // Check that hashtags are valid cardId's
-        for (let i = 0; i < data.hashtags.length; i++) {
-            await HashtagService.getOne(data.hashtags[i]);
-        }
 
         // Check the slug is unique
         const slugExist = await Organisation.findOne({ slugUrl: data.slugUrl });

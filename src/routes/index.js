@@ -13,6 +13,8 @@ router.use("/hashtags", require("./hashtag.route"));
 
 router.use("/organisations", require("./organisation.route"));
 
+router.use("/projects", require("./project.route"));
+
 router.use("/users", require("./user.route"));
 
 router.get("/", (req, res) => {

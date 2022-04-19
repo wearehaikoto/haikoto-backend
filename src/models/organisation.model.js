@@ -26,27 +26,11 @@ const organisationSchema = new Schema(
             type: Boolean,
             required: true,
             default: false
-        },
-        hashtags: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    required: true,
-                    ref: "hashtag"
-                }
-            ],
-            required: true
         }
     },
     {
         timestamps: true
     }
 );
-
-organisationSchema.pre("findOne", function (next) {
-    this.populate("hashtags");
-
-    next();
-});
 
 module.exports = mongoose.model("organisation", organisationSchema);
