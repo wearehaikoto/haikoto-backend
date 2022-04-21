@@ -10,7 +10,7 @@ class UserService {
         return await User.find({ isDeleted: false }, { password: 0, __v: 0 }).populate("organisation");
     }
 
-    async getAllFromOrganisation(organisationId) {
+    async getAllByOrganisation(organisationId) {
         return await User.find({ organisation: organisationId, isDeleted: false }, { password: 0, __v: 0 });
     }
 

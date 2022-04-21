@@ -12,6 +12,11 @@ class UserContoller {
         res.status(200).send(response("all users", result));
     }
 
+    async getAllByOrganisation(req, res) {
+        const result = await UserService.getAllByOrganisation(req.params.organisationId);
+        res.status(200).send(response("all users by organisation", result));
+    }
+
     async getMe(req, res) {
         const result = await UserService.getOne(req.$user._id);
         res.status(200).send(response("user data", result));

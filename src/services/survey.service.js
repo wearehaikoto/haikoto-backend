@@ -27,7 +27,7 @@ class SurveyService {
 
     async getAllByOrganisation(organisationId, shouldPopulate = false) {
         // Get all Id's of users from organisation
-        const usersFromOrganisation = await UserService.getAllFromOrganisation(organisationId);
+        const usersFromOrganisation = await UserService.getAllByOrganisation(organisationId);
         const userIds = usersFromOrganisation.map((user) => user._id);
 
         // Get all surveys from users

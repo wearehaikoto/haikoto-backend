@@ -34,7 +34,7 @@ class OrganisationService {
         const surveys = await SurveyService.getAllByOrganisation(organisationId, true);
 
         // Get all users from organisation
-        const users = await UserService.getAllFromOrganisation(organisationId);
+        const users = await UserService.getAllByOrganisation(organisationId);
 
         // Merge surveys and users
         const exportData = { surveys, users };
