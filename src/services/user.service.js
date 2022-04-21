@@ -7,11 +7,7 @@ class UserService {
     }
 
     async getAll() {
-        return await User.find({ isDeleted: false }, { password: 0, __v: 0 });
-    }
-
-    async getAll() {
-        return await User.find({ isDeleted: false }, { password: 0, __v: 0 });
+        return await User.find({ isDeleted: false }, { password: 0, __v: 0 }).populate("organisation");
     }
 
     async getAllFromOrganisation(organisationId) {
