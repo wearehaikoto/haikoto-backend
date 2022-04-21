@@ -1,20 +1,23 @@
-const UserService = require("./user.service");
 const Card = require("../models/card.model");
+const UserService = require("./user.service");
 const Survey = require("./../models/survey.model");
 const Hashtag = require("../models/hashtag.model");
+const ProjectService = require("./project.service");
 const CustomError = require("../utils/custom-error");
 
 class SurveyService {
-    async create(userId) {
-        const checkIfCanContinue = await this.checkIfNewCardForSurvey(userId);
+    async create(userId, data) {
+        if (data.project) await ProjectService.getOne(data.project);
+
+        const checkIfCanContinue = await this.checkIfNewCardForSurvey(userId, data.project);
         if (!checkIfCanContinue) throw new CustomError("you have already played all the cards");
 
-        // Check if the user has an oldSurvey
-        const oldSurvey = await this.getOneByUser(userId).catch((e) => console.log("user does not have oldSurvey", e.message));
+        // Check if the user + project (if any) has an oldSurvey
+        const oldSurvey = await this.getOneByUser(userId, data.project).catch((e) => console.log("user does not have oldSurvey", e.message));
         if (oldSurvey) return { ...oldSurvey.toObject(), continue: true };
 
-        // Create Survey with userId if no oldSurvey
-        const survey = await new Survey({ user: userId }).save();
+        // Create Survey with user + project (if any) if no oldSurvey
+        const survey = await new Survey({ user: userId, project: data.project }).save();
         return { ...survey.toObject(), continue: false };
     }
 
@@ -38,24 +41,24 @@ class SurveyService {
         return await surveys;
     }
 
-    async getOneByUser(userId) {
-        return await Survey.findOne({ user: userId, isDeleted: false });
+    async getOneByUser(userId, projectId = undefined) {
+        return await Survey.findOne({ user: userId, project: projectId, isDeleted: false });
     }
 
     async getAllByUser(userId) {
         return await Survey.find({ user: userId, isDeleted: false });
     }
 
-    async checkIfNewCardForSurvey(userId) {
-        // await Survey.deleteMany({}); // for easy testing delete all everytime
+    async checkIfNewCardForSurvey(userId, projectId = undefined) {
+        // await Survey.deleteOne({ user: userId, project: projectId }); // for easy testing delete all everytime
 
-        // If there is no survey for the user, return true
-        const survey = await this.getOneByUser(userId).catch((e) => console.log("user does not have oldSurvey", e.message));
+        // If there is no survey for the user with project, return true
+        const survey = await this.getOneByUser(userId, projectId).catch((e) => console.log("user does not have oldSurvey", e.message));
         if (!survey) return true;
 
         // If there is a survey for the user, check if there are any cards left
         const newCard = await this.newCard(survey._id).catch((e) => console.log("no new card is available", e.message));
-        const newHashtag = await this.newHashtag(survey._id, userId).catch((e) => console.log("no new hashtag is available", e.message));
+        const newHashtag = await this.newHashtag(survey._id).catch((e) => console.log("no new hashtag is available", e.message));
 
         if (!newCard && !newHashtag) return false;
 
@@ -107,9 +110,8 @@ class SurveyService {
         return newRandomCard[0];
     }
 
-    async newHashtag(surveyId, userId) {
+    async newHashtag(surveyId) {
         const survey = await this.getOne(surveyId);
-        const user = await UserService.getOne(userId);
 
         // Query build up
         const query = {
@@ -119,8 +121,10 @@ class SurveyService {
                 .map((hashtag) => hashtag._id)
         };
 
-        // Check if the user is attached to an organisation and get all the organisation hashtags
-        if (user.organisation) query["$in"] = user.organisation.hashtags;
+        // Check if the survey is attached to a project and get all the project hashtags
+        if (survey.project) {
+            query["$in"] = survey.project.hashtags;
+        }
 
         // Get one Hashtag where
         // - parentHashtag is NULL

@@ -3,7 +3,7 @@ const SurveyServ = require("./../services/survey.service");
 
 class SurveyContoller {
     async create(req, res) {
-        const result = await SurveyServ.create(req.$user._id);
+        const result = await SurveyServ.create(req.$user._id, req.body);
         res.status(201).send(response("survey created", result));
     }
 
