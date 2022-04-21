@@ -64,6 +64,16 @@ const surveySchema = new Schema(
     }
 );
 
+surveySchema.pre("find", function (next) {
+    this.populate({
+        path: "user",
+        populate: { path: "organisation" }
+    });
+    this.populate("project");
+
+    next();
+});
+
 surveySchema.pre("findOne", function (next) {
     this.populate("user");
     this.populate({

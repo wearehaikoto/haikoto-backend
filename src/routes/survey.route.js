@@ -9,6 +9,8 @@ router.get("/", auth(role.ADMIN), SurveyCtrl.getAll);
 
 router.get("/user/me", auth(role.USER), SurveyCtrl.getOneByMe);
 
+router.get("/org/:organisationId", auth(role.ADMIN), SurveyCtrl.getAllByOrganisation);
+
 router.get("/user/check-new-card", auth(role.USER), SurveyCtrl.checkIfNewCardForSurvey);
 
 router.get("/user/:userId", auth(role.ADMIN), SurveyCtrl.getOneByUser);

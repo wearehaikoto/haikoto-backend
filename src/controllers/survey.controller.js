@@ -12,6 +12,11 @@ class SurveyContoller {
         res.status(200).send(response("all survey", result));
     }
 
+    async getAllByOrganisation(req, res) {
+        const result = await SurveyServ.getAllByOrganisation(req.params.organisationId);
+        res.status(200).send(response("all surveys by organisation", result));
+    }
+
     async getOneByMe(req, res) {
         const result = await SurveyServ.getOneByUser(req.$user._id);
         res.status(200).send(response("survey by user", result));
