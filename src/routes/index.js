@@ -7,7 +7,7 @@ router.use("/auth", require("./auth.route"));
 
 router.use("/cards", require("./card.route"));
 
-router.use("/games", require("./game.route"));
+router.use("/surveys", require("./survey.route"));
 
 router.use("/hashtags", require("./hashtag.route"));
 

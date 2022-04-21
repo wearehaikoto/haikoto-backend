@@ -1,12 +1,17 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const gameSchema = new Schema(
+const surveySchema = new Schema(
     {
         user: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
             ref: "user"
+        },
+        project: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: false,
+            ref: "project"
         },
         rightSwipedCards: {
             type: [
@@ -59,7 +64,7 @@ const gameSchema = new Schema(
     }
 );
 
-gameSchema.pre("findOne", function (next) {
+surveySchema.pre("findOne", function (next) {
     this.populate("user");
     this.populate({
         path: "leftSwipedCards",
@@ -71,8 +76,9 @@ gameSchema.pre("findOne", function (next) {
     });
     this.populate("leftSwipedHashtags");
     this.populate("rightSwipedHashtags");
+    this.populate("project");
 
     next();
 });
 
-module.exports = mongoose.model("game", gameSchema);
+module.exports = mongoose.model("survey", surveySchema);
