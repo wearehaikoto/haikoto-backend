@@ -7,7 +7,7 @@ router.post("/", auth(role.ADMIN), ProjectCtrl.create);
 
 router.get("/", auth(role.ADMIN), ProjectCtrl.getAll);
 
-router.get("/org/:organisationId", auth(role.ADMIN), ProjectCtrl.getAllByOrganisation);
+router.get("/org/:organisationId", auth(role.USER), ProjectCtrl.getAllByOrganisation);
 
 router.get("/:projectId", auth(role.ADMIN), ProjectCtrl.getOne);
 
