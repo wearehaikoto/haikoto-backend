@@ -13,7 +13,7 @@ const cardSchema = new Schema(
         },
         imageUrl: {
             type: String,
-            required: true
+            required: false
         },
         isDeleted: {
             type: Boolean,

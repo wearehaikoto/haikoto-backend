@@ -5,8 +5,11 @@ const CustomError = require("./../utils/custom-error");
 class CardService {
     async create(data, userId) {
         if (!data.title) throw new CustomError("card title is required");
-        // if (!data.description) throw new CustomError("card description is required");
-        if (!data.imageUrl) throw new CustomError("card image is required");
+
+        if (!data.imageUrl) {
+            if (!data.description) throw new CustomError("card description is required if no image");
+        }
+        // if (!data.imageUrl) throw new CustomError("card image is required");
         if (!data.hashtags) data.hashtags = [];
 
         if (data.hashtags.length === 0) throw new CustomError("card must have at least one hashtag");
