@@ -123,7 +123,22 @@ class SurveyService {
 
         // Check if the survey is attached to a project and get all the project hashtags
         if (survey.project) {
-            query["$in"] = survey.project.hashtags;
+            const projectHashtags = survey.project.hashtags;
+
+            for (let index = 0; index < projectHashtags.length; index++) {
+                const hashtagId = projectHashtags[index];
+
+                // Check if the hashtag is not
+                // - already in the leftSwipedHashtags
+                // - or in rightSwipedHashtags
+                const surveyUsedHashtags = survey.leftSwipedHashtags.map((hashtag) => String(hashtag._id)).concat(survey.rightSwipedHashtags.map((hashtag) => String(hashtag._id)));
+
+                // If the hashtag is not in the surveyUsedHashtags, add it to the query
+                if (!surveyUsedHashtags.includes(String(hashtagId))) {
+                    query["$in"] = [hashtagId];
+                    break;
+                }
+            }
         }
 
         // Get one Hashtag where
