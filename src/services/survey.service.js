@@ -125,6 +125,9 @@ class SurveyService {
         if (survey.project) {
             const projectHashtags = survey.project.hashtags;
 
+            // By default search in no card
+            query["$in"] = [];
+
             for (let index = 0; index < projectHashtags.length; index++) {
                 const hashtagId = projectHashtags[index];
 
