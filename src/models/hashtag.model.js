@@ -15,6 +15,10 @@ const hashtagSchema = new Schema(
             type: String,
             required: false
         },
+        bgColor: {
+            type: String,
+            required: false
+        },
         isDeleted: {
             type: Boolean,
             required: true,
