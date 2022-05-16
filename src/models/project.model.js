@@ -20,7 +20,7 @@ const projectSchema = new Schema(
         },
         organisation: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true,
+            required: false,
             ref: "organisation"
         },
         isDeleted: {
