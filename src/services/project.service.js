@@ -26,6 +26,10 @@ class ProjectService {
         return await Project.find({ isDeleted: false });
     }
 
+    async getAllDefaults() {
+        return await Project.find({ isDeleted: false, organisation: undefined });
+    }
+
     async getAllByOrganisation(organisationId) {
         return await Project.find({ organisation: organisationId, isDeleted: false });
     }

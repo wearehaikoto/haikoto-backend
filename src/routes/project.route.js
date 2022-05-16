@@ -7,6 +7,8 @@ router.post("/", auth(role.ADMIN), ProjectCtrl.create);
 
 router.get("/", auth(role.ADMIN), ProjectCtrl.getAll);
 
+router.get("/defaults", auth(role.USER), ProjectCtrl.getAllDefaults);
+
 router.get("/org/:organisationId", auth(role.USER), ProjectCtrl.getAllByOrganisation);
 
 router.get("/:projectId", auth(role.ADMIN), ProjectCtrl.getOne);

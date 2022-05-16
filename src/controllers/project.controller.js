@@ -13,6 +13,11 @@ class ProjectContoller {
         res.status(200).send(response("all projects", result));
     }
 
+    async getAllDefaults(req, res) {
+        const result = await ProjectServ.getAllDefaults();
+        res.status(200).send(response("all default projects", result));
+    }
+
     async getAllByOrganisation(req, res) {
         const result = await ProjectServ.getAllByOrganisation(req.params.organisationId);
         res.status(200).send(response("all projects by organisation", result));
