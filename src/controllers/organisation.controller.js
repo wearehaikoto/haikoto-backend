@@ -1,5 +1,6 @@
-const response = require("./../utils/response");
 const OrganisationServ = require("./../services/organisation.service");
+
+const response = require("./../utils/response");
 
 class OrganisationContoller {
     async create(req, res) {
@@ -9,17 +10,12 @@ class OrganisationContoller {
 
     async getAll(req, res) {
         const result = await OrganisationServ.getAll();
-        res.status(200).send(response("all organisation", result));
+        res.status(200).send(response("All organisation", result));
     }
 
-    async getOneBySlugUrl(req, res) {
-        const result = await OrganisationServ.getOneBySlugUrl(req.params.slugUrl);
+    async getOneBySlug(req, res) {
+        const result = await OrganisationServ.getOneBySlug(req.params.slug);
         res.status(200).send(response("organisation data", result));
-    }
-
-    async getOneExportData(req, res) {
-        const result = await OrganisationServ.getOneExportData(req.params.organisationId);
-        res.status(200).send(response("organisation export data", result));
     }
 
     async getOne(req, res) {

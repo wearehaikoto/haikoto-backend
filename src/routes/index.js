@@ -7,13 +7,13 @@ router.use("/auth", require("./auth.route"));
 
 router.use("/cards", require("./card.route"));
 
-router.use("/surveys", require("./survey.route"));
-
 router.use("/hashtags", require("./hashtag.route"));
 
 router.use("/organisations", require("./organisation.route"));
 
 router.use("/projects", require("./project.route"));
+
+router.use("/surveys", require("./survey.route"));
 
 router.use("/users", require("./user.route"));
 
@@ -21,8 +21,8 @@ router.get("/", (req, res) => {
     return res.status(200).json({ message: "Hello world from haikoto! :)" });
 });
 
-// Allow Playground to be accessed from localhost
-if (process.env.NODE_ENV !== "production") {
+// Allow Playground to be accessed in development
+if (process.env.NODE_ENV === "development") {
     router.use("/playground", async (req, res) => {
         const results = {};
         res.json(results);

@@ -7,37 +7,36 @@ const cardSchema = new Schema(
             type: String,
             required: true
         },
+
         description: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
+
         imageUrl: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
+
         bgColor: {
             type: String,
-            required: false
+            required: false,
+            default: null
         },
+
+        hashtagRefs: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "hashtag"
+            }
+        ],
+
         isDeleted: {
             type: Boolean,
             required: true,
             default: false
-        },
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: true,
-            ref: "user"
-        },
-        hashtags: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    required: true,
-                    ref: "hashtag"
-                }
-            ],
-            required: true
         }
     },
     {
@@ -46,10 +45,16 @@ const cardSchema = new Schema(
 );
 
 cardSchema.pre("findOne", function (next) {
-    this.populate("user", "_id codeName name");
-    this.populate("hashtags");
-
+    this.populate("hashtagRefs");
     next();
 });
+
+// set mongoose options to have lean turned on by default | ref: https://itnext.io/performance-tips-for-mongodb-mongoose-190732a5d382
+mongoose.Query.prototype.setOptions = function () {
+    if (this.mongooseOptions().lean == null) {
+        this.mongooseOptions({ lean: true });
+    }
+    return this;
+};
 
 module.exports = mongoose.model("card", cardSchema);

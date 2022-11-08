@@ -1,7 +1,7 @@
 const JWT = require("jsonwebtoken");
-const User = require("./../models/user.model");
-const { role, JWT_SECRET } = require("./../config");
-const CustomError = require("./../utils/custom-error");
+const User = require("../models/user.model");
+const { role, JWT_SECRET } = require("../config");
+const CustomError = require("../utils/custom-error");
 
 /**
  * If no role is passed the default role is user
@@ -12,20 +12,33 @@ function auth(roles = []) {
     roles = roles.length > 0 ? roles : role.USER;
 
     return async (req, res, next) => {
-        if (!req.headers.authorization) throw new CustomError("unauthorized access: Token not found", 401);
+        if (!req.headers.authorization) throw new CustomError("unauthorized access: token not found", 401);
 
         const token = req.headers.authorization.split(" ")[1];
-        const userDataDecodedFromToken = JWT.verify(token, JWT_SECRET);
+        const decoded = JWT.verify(token, JWT_SECRET, (err, decoded) => {
+            if (err) throw new CustomError("-middleware/token-expired", 401);
+            return decoded;
+        });
 
-        const user = await User.findOne({ _id: userDataDecodedFromToken.id });
+        const user = await User.findOne({ _id: decoded.id });
 
-        if (!user) throw new CustomError("unauthorized access: User does not exist", 401);
+        // If User does not exist
+        if (!user) throw new CustomError("-middleware/user-not-found", 401);
 
-        if (!user.isActive) throw new CustomError("unauthorized access: User has been deactivated", 401);
+        // If User has been deactivated
+        if (!user.isActive) throw new CustomError("-middleware/user-deactivated", 401);
 
-        if (!roles.includes(user.role)) throw new CustomError("unauthorized access", 401);
+        // If role is not authorized to access route
+        if (!roles.includes(user.role)) throw new CustomError("-middleware/user-not-authorized", 401);
+
+        // Log lastActive for every request
+        await User.findByIdAndUpdate(user._id, { lastActive: new Date() });
 
         req.$user = user;
+
+        if (user.organisationRef) {
+            req.$organisation = user.organisationRef;
+        }
 
         next();
     };

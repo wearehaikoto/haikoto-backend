@@ -1,15 +1,13 @@
-const { role } = require("./../config");
 const router = require("express").Router();
-const auth = require("./../middlewares/auth.middleware");
 const OrganisationCtrl = require("./../controllers/organisation.controller");
+const auth = require("./../middlewares/auth.middleware");
+const { role } = require("./../config");
 
 router.post("/", auth(role.ADMIN), OrganisationCtrl.create);
 
 router.get("/", auth(role.ADMIN), OrganisationCtrl.getAll);
 
-router.get("/slug/:slugUrl", OrganisationCtrl.getOneBySlugUrl);
-
-router.get("/export/:organisationId", OrganisationCtrl.getOneExportData);
+router.get("/slug/:slug", OrganisationCtrl.getOneBySlug);
 
 router.get("/:organisationId", auth(role.ADMIN), OrganisationCtrl.getOne);
 

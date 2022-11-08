@@ -3,232 +3,185 @@ const UserService = require("./user.service");
 const Survey = require("./../models/survey.model");
 const Hashtag = require("../models/hashtag.model");
 const ProjectService = require("./project.service");
-const CustomError = require("../utils/custom-error");
+const CustomError = require("./../utils/custom-error");
 
 class SurveyService {
-    async create(userId, data) {
-        if (data.project) await ProjectService.getOne(data.project);
+    async create(data, user) {
+        if (!data.projectRef) throw new CustomError("survey project is required");
 
-        const checkIfCanContinue = await this.checkIfNewCardForSurvey(userId, data.project);
-        if (!checkIfCanContinue) throw new CustomError("you have already played all the cards");
+        // if a project is passed, check if the project is valid
+        if (data.projectRef) await ProjectService.getOne(data.projectRef);
 
-        // Check if the user + project (if any) has an oldSurvey
-        const oldSurvey = await this.getOneByUser(userId, data.project).catch((e) => console.log("user does not have oldSurvey", e.message));
-        if (oldSurvey) return { ...oldSurvey.toObject(), continue: true };
+        // Check if there's an existing survey for this user & project
+        const existingSurvey = await Survey.findOne({ userRef: user._id, projectRef: data.projectRef });
+        if (existingSurvey) return { ...existingSurvey, status: "resumed" };
 
-        // Create Survey with user + project (if any) if no oldSurvey
-        const survey = await new Survey({ user: userId, project: data.project }).save();
-        return { ...survey.toObject(), continue: false };
+        // If no existing survey, create one
+        const context = {
+            userRef: user._id,
+            projectRef: data.projectRef,
+
+            leftSwipedCardRefs: [],
+            rightSwipedCardRefs: [],
+            leftSwipedHashtagRefs: [],
+            rightSwipedHashtagRefs: []
+        };
+
+        const survey = await new Survey(context).save();
+
+        return { ...survey.toObject(), status: "new" };
     }
 
     async getAll() {
-        return await Survey.find({ isDeleted: false });
+        return await Survey.find({})
+            // Populate userRef
+            .populate({ path: "userRef", select: "codeName", populate: { path: "organisationRef", select: "name" } })
+            // Populate userRef
+            .populate({ path: "projectRef", select: "name" });
     }
 
-    async getAllByOrganisation(organisationId, shouldPopulate = false) {
+    async getAllForOrganisation(organisationId) {
         // Get all Id's of users from organisation
-        const usersFromOrganisation = await UserService.getAllByOrganisation(organisationId);
+        const usersFromOrganisation = await UserService.getAllForOrganisation(organisationId);
         const userIds = usersFromOrganisation.map((user) => user._id);
 
         // Get all surveys from users
-        const surveys = Survey.find({ user: { $in: userIds }, isDeleted: false });
-
-        if (shouldPopulate) {
-            surveys.populate("leftSwipedCards rightSwipedCards leftSwipedHashtags rightSwipedHashtags");
-        }
-
-        // Return surveys
-        return await surveys;
+        return await Survey.find({ userRef: { $in: userIds } })
+            // Populate userRef
+            .populate({ path: "userRef", select: "codeName" })
+            // Populate userRef
+            .populate({ path: "projectRef", select: "name" });
     }
 
-    async getOneByUser(userId, projectId = undefined) {
-        return await Survey.findOne({ user: userId, project: projectId, isDeleted: false });
-    }
-
-    async getAllByUser(userId) {
-        return await Survey.find({ user: userId, isDeleted: false });
-    }
-
-    async checkIfNewCardForSurvey(userId, projectId = undefined) {
-        // await Survey.deleteOne({ user: userId, project: projectId }); // for easy testing delete all everytime
-
-        // If there is no survey for the user with project, return true
-        const survey = await this.getOneByUser(userId, projectId).catch((e) => console.log("user does not have oldSurvey", e.message));
-        if (!survey) return true;
-
-        // If there is a survey for the user, check if there are any cards left
-        const newCard = await this.newCard(survey._id).catch((e) => console.log("no new card is available", e.message));
-        const newHashtag = await this.newHashtag(survey._id).catch((e) => console.log("no new hashtag is available", e.message));
-
-        if (!newCard && !newHashtag) return false;
-
-        // Return true if there is a new card or hashtag to play
-        return true;
-    }
-
-    async getOne(surveyId) {
-        const survey = await Survey.findOne({ _id: surveyId });
-        if (!survey) throw new CustomError("survey does not exist", 404);
-        return survey;
-    }
-
-    async newCard(surveyId) {
+    async getNewCard(surveyId) {
         const survey = await this.getOne(surveyId);
 
-        // Top Level Parent
-
         // Get a random card from the database that
-        // - is not a parent card
-        // - does not have a hashtag in leftSwipedHashtags
-        // - have a card in rightSwipedHashtags,
         // - has not been used in the survey.
+        // - does not have a hashtag in leftSwipedHashtagRefs
+        // - has a hashtag in rightSwipedHashtagRefs
+
         const newRandomCard = await Card.aggregate([
             {
                 $match: {
                     isDeleted: false,
-                    hashtags: {
-                        $nin: survey.leftSwipedHashtags,
-                        $in: survey.rightSwipedHashtags
+                    hashtagRefs: {
+                        $nin: survey.leftSwipedHashtagRefs.map((hashtag) => hashtag._id),
+                        $in: survey.rightSwipedHashtagRefs.map((hashtag) => hashtag._id)
                     },
                     _id: {
-                        $nin: survey.leftSwipedCards
-                            .map((c) => c._id)
-                            .concat(survey.rightSwipedCards)
-                            .map((c) => c._id)
+                        $nin: survey.leftSwipedCardRefs.map((card) => card._id).concat(survey.rightSwipedCardRefs.map((card) => card._id))
                     }
                 }
             },
             { $sample: { size: 1 } }
         ]);
 
-        if (newRandomCard.length === 0) throw new CustomError("all cards have been played");
+        // If no card left, return null
+        // if (newRandomCard.length === 0) throw new CustomError("all cards have been played");
+        if (newRandomCard.length === 0) return null;
 
-        // Populate the card hashtags
-        await Card.populate(newRandomCard, { path: "hashtags" });
+        // Populate the card hashtagRefs // commented out because terminal was throwing error "TypeError: Cannot read property 'wasPopulated' of undefined"
+        // await Card.populate(newRandomCard, { path: "hashtagRefs" });
 
         // Return the card
         return newRandomCard[0];
     }
 
-    async newHashtag(surveyId) {
+    async getNewHashtag(surveyId) {
         const survey = await this.getOne(surveyId);
 
         // Query build up
         const query = {
-            $nin: survey.leftSwipedHashtags
-                .map((hashtag) => hashtag._id)
-                .concat(survey.rightSwipedHashtags)
-                .map((hashtag) => hashtag._id)
+            $nin: survey.leftSwipedHashtagRefs.map((hashtag) => hashtag._id).concat(survey.rightSwipedHashtagRefs.map((hashtag) => hashtag._id))
         };
 
-        // Check if the survey is attached to a project and get all the project hashtags
-        if (survey.project) {
-            const projectHashtags = survey.project.hashtags;
+        // Check if the survey is attached to a projectRef and get all the project hashtagRefs
+        if (survey.projectRef) {
+            const projectHashtagRefs = survey.projectRef.hashtagRefs;
 
-            // By default search in no card
             query["$in"] = [];
 
-            for (let index = 0; index < projectHashtags.length; index++) {
-                const hashtagId = projectHashtags[index];
+            for (let index = 0; index < projectHashtagRefs.length; index++) {
+                const hashtagId = projectHashtagRefs[index];
 
-                // Check if the hashtag is not
-                // - already in the leftSwipedHashtags
-                // - or in rightSwipedHashtags
-                const surveyUsedHashtags = survey.leftSwipedHashtags.map((hashtag) => String(hashtag._id)).concat(survey.rightSwipedHashtags.map((hashtag) => String(hashtag._id)));
+                // Check if the hashtagId is not
+                // - in the leftSwipedHashtagRefs
+                // - or in rightSwipedHashtagRefs
+                const surveyUsedHashtagRefs = survey.leftSwipedHashtagRefs.map((hashtag) => hashtag._id).concat(survey.rightSwipedHashtagRefs.map((hashtag) => hashtag._id));
 
-                // If the hashtag is not in the surveyUsedHashtags, add it to the query
-                if (!surveyUsedHashtags.includes(String(hashtagId))) {
-                    query["$in"] = [hashtagId];
-                    break;
+                // If the hashtag is not in the surveyUsedHashtagRefs, add it to the query searchIn array of hashtagRefs
+                if (surveyUsedHashtagRefs.includes(hashtagId) === false) {
+                    query["$in"].push(hashtagId);
                 }
             }
         }
 
-        // Get one Hashtag where
-        // - parentHashtag is NULL
+        // Get a Parent Hashtag where
         // - is not used in the survey
-        const newRandomParentHashtag = await Hashtag.aggregate([
-            {
-                $match: {
-                    isDeleted: false,
-                    parentHashtag: null,
-                    _id: query
-                }
-            },
-            { $sample: { size: 1 } }
-        ]);
+        // - parentHashtagRef is NULL
+        const newRandomParentHashtag = await Hashtag.aggregate([{ $match: { isDeleted: false, _id: query, parentHashtagRef: null } }, { $sample: { size: 1 } }]);
 
-        // Return the hashtag
+        // If there's a newRandomParentHashtag, return it
         if (newRandomParentHashtag.length !== 0) return newRandomParentHashtag[0];
 
-        // Delete $in from query for the next query
+        // Delete $in from query for the next DB lookup
         delete query["$in"];
 
-        // Get one Hashtag where
-        // - parentHashtag is not null and is same as one of the hashtags in rightSwipedHashtags
+        // Get a Hashtag where
         // - is not used in the survey
+        // - parentHashtagRef is != null and is same as one of the hashtags in rightSwipedHashtagRefs
         const newRandomHashtag = await Hashtag.aggregate([
-            {
-                $match: {
-                    isDeleted: false,
-                    parentHashtag: {
-                        $in: survey.rightSwipedHashtags.map((hashtag) => hashtag._id)
-                    },
-                    _id: query
-                }
-            },
+            // breaker
+            { $match: { isDeleted: false, _id: query, parentHashtagRef: { $in: survey.rightSwipedHashtagRefs.map((hashtag) => hashtag._id) } } },
             { $sample: { size: 1 } }
         ]);
 
-        if (newRandomHashtag.length === 0) throw new CustomError("all hashtags have been used");
+        // If no hashtag left, return null
+        // if (newRandomHashtag.length === 0) throw new CustomError("all hashtags have been used");
+        if (newRandomHashtag.length === 0) return null;
 
         // Return the hashtag
         return newRandomHashtag[0];
     }
 
-    async addLeftSwipedCard(surveyId, data) {
-        if (!data.cardId) throw new CustomError("card id is required");
-        const survey = await Survey.findOneAndUpdate({ _id: surveyId }, { $push: { leftSwipedCards: { $each: [data.cardId], $position: 0 } } }, { new: true });
-        if (!survey) throw new CustomError("survey does not exist", 404);
-        return survey;
-    }
+    async getOne(surveyId) {
+        const survey = await Survey.findOne({ _id: surveyId });
+        if (!survey) throw new CustomError("Survey does not exists");
 
-    async addRightSwipedCard(surveyId, data) {
-        if (!data.cardId) throw new CustomError("card id is required");
-        const survey = await Survey.findOneAndUpdate({ _id: surveyId }, { $push: { rightSwipedCards: data.cardId } }, { new: true });
-        if (!survey) throw new CustomError("survey does not exist", 404);
-        return survey;
-    }
-
-    async updateRightSwipedCards(surveyId, data) {
-        if (!data.cardIds) throw new CustomError("card id's are required");
-        const survey = await this.update(surveyId, { rightSwipedCards: data.cardIds });
-        return survey;
-    }
-
-    async addLeftSwipedHashtag(surveyId, data) {
-        if (!data.hashtagId) throw new CustomError("hashtag id is required");
-        const survey = await Survey.findOneAndUpdate({ _id: surveyId }, { $push: { leftSwipedHashtags: data.hashtagId } }, { new: true });
-        if (!survey) throw new CustomError("survey does not exist", 404);
-        return survey;
-    }
-
-    async addRightSwipedHashtag(surveyId, data) {
-        if (!data.hashtagId) throw new CustomError("hashtag id is required");
-        const survey = await Survey.findOneAndUpdate({ _id: surveyId }, { $push: { rightSwipedHashtags: data.hashtagId } }, { new: true });
-        if (!survey) throw new CustomError("survey does not exist", 404);
         return survey;
     }
 
     async update(surveyId, data) {
         const survey = await Survey.findByIdAndUpdate({ _id: surveyId }, { $set: data }, { new: true });
-        if (!survey) throw new CustomError("survey does not exist", 404);
+
+        if (!survey) throw new CustomError("Survey dosen't exist", 404);
+
         return survey;
     }
 
+    async updateLeftSwipedCardRefs(surveyId, data) {
+        if (!data.ids) throw new CustomError("card ids are required");
+        return await this.update(surveyId, { leftSwipedCardRefs: data.ids });
+    }
+
+    async updateRightSwipedCardRefs(surveyId, data) {
+        if (!data.ids) throw new CustomError("card ids are required");
+        return await this.update(surveyId, { rightSwipedCardRefs: data.ids });
+    }
+
+    async updateLeftSwipedHashtagRefs(surveyId, data) {
+        if (!data.ids) throw new CustomError("hashtag ids are required");
+        return await this.update(surveyId, { leftSwipedHashtagRefs: data.ids });
+    }
+
+    async updateRightSwipedHashtagRefs(surveyId, data) {
+        if (!data.ids) throw new CustomError("hashtag ids are required");
+        return await this.update(surveyId, { rightSwipedHashtagRefs: data.ids });
+    }
+
     async delete(surveyId) {
-        const survey = await this.update(surveyId, { isDeleted: true });
-        return survey;
+        return await Survey.deleteOne({ _id: surveyId });
     }
 }
 

@@ -1,69 +1,67 @@
-const SurveyService = require("./survey.service");
-const UserService = require("./user.service");
+const ImgBB = require("../lib/imgbb");
 const Organisation = require("./../models/organisation.model");
 const CustomError = require("./../utils/custom-error");
 
 class OrganisationService {
     async create(data) {
         if (!data.name) throw new CustomError("organisation name is required");
-        if (!data.slugUrl) throw new CustomError("Organisation slug is required");
-        if (!data.logoUrl) throw new CustomError("Organisation logo is required");
+        if (!data.slug) throw new CustomError("organisation slug is required");
+        if (!data.base64) throw new CustomError("organisation logo is required");
 
         // Check the slug is unique
-        const slugExist = await Organisation.findOne({ slugUrl: data.slugUrl });
+        const slugExist = await Organisation.findOne({ slug: data.slug });
         if (slugExist) throw new CustomError("another organisation with this slug already exists");
 
-        return await new Organisation(data).save();
+        const uploadImage = await ImgBB.uploadImage(data.base64);
+        data.logoUrl = uploadImage.Location;
+
+        const context = {
+            name: data.name,
+            slug: String(data.slug).toLowerCase(),
+            logoUrl: data.logoUrl
+        };
+
+        return await new Organisation(context).save();
     }
 
     async getAll() {
-        return await Organisation.find({ isDeleted: false });
+        return await Organisation.find({})
+            // check if not deleted
+            .where({ isDeleted: { $in: [false, undefined] } });
     }
 
-    async getOneBySlugUrl(slugUrl) {
-        const organisation = await Organisation.findOne({ slugUrl });
+    async getOneBySlug(slug) {
+        const organisation = await Organisation.findOne({ slug })
+            // check if not deleted
+            .where({ isDeleted: { $in: [false, undefined] } });
+
         if (!organisation) throw new CustomError("organisation does not exist", 404);
+
         return organisation;
     }
 
-    async getOneExportData(organisationId) {
-        const organisation = await Organisation.findOne({ _id: organisationId });
-        if (!organisation) throw new CustomError("organisation does not exist", 404);
-
-        // Get all surveys from organisation
-        const surveys = await SurveyService.getAllByOrganisation(organisationId, true);
-
-        // Get all users from organisation
-        const users = await UserService.getAllByOrganisation(organisationId);
-
-        // Merge surveys and users
-        const exportData = { surveys, users };
-
-        return exportData;
-    }
-
     async getOne(organisationId) {
-        const organisation = await Organisation.findOne({ _id: organisationId });
-        if (!organisation) throw new CustomError("organisation does not exist", 404);
+        const organisation = await Organisation.findOne({ _id: organisationId })
+            // check if not deleted
+            .where({ isDeleted: { $in: [false, undefined] } });
+
+        if (!organisation) throw new CustomError("Organisation does not exists");
+
         return organisation;
     }
 
     async update(organisationId, data) {
-        // Check the slug is unique
-        if (data.slugUrl) {
-            const slugExist = await Organisation.findOne({ slugUrl: data.slugUrl });
-            if (slugExist && slugExist.id !== organisationId) throw new CustomError("another organisation with this slug already exists");
-        }
+        const organisation = await Organisation.findByIdAndUpdate({ _id: organisationId }, { $set: data }, { new: true })
+            // check if not deleted
+            .where({ isDeleted: { $in: [false, undefined] } });
 
-        const organisation = await Organisation.findByIdAndUpdate({ _id: organisationId }, { $set: data }, { new: true });
-        if (!organisation) throw new CustomError("organisation does not exist", 404);
+        if (!organisation) throw new CustomError("Organisation dosen't exist", 404);
 
         return organisation;
     }
 
     async delete(organisationId) {
-        const organisation = await this.update(organisationId, { isDeleted: true });
-        return organisation;
+        return await this.update(organisationId, { isDeleted: true });
     }
 }
 

@@ -1,59 +1,70 @@
+const ImgBB = require("../lib/imgbb");
 const Card = require("./../models/card.model");
 const HashtagService = require("./hashtag.service");
 const CustomError = require("./../utils/custom-error");
 
 class CardService {
-    async create(data, userId) {
+    async create(data) {
         if (!data.title) throw new CustomError("card title is required");
 
-        if (!data.imageUrl) {
-            if (!data.description) throw new CustomError("card description is required if no image");
-        }
-        // if (!data.imageUrl) throw new CustomError("card image is required");
-        if (!data.hashtags) data.hashtags = [];
-
-        if (data.hashtags.length === 0) throw new CustomError("card must have at least one hashtag");
-
-        // Check that hashtags are valid cardId's
-        for (let i = 0; i < data.hashtags.length; i++) {
-            await HashtagService.getOne(data.hashtags[i]);
+        if (!data.base64) {
+            if (!data.description) throw new CustomError("card description is required when no image is uploaded");
         }
 
-        data.user = userId;
+        if (!data.hashtagRefs) data.hashtagRefs = [];
+        if (data.hashtagRefs.length === 0) throw new CustomError("card must have at least one hashtag");
 
-        return await new Card(data).save();
+        // Check that hashtagRefs are valid hashtagId's
+        for (let i = 0; i < data.hashtagRefs.length; i++) {
+            await HashtagService.getOne(data.hashtagRefs[i]);
+        }
+
+        if (data.base64) {
+            const uploadImage = await ImgBB.uploadImage(data.base64);
+            data.imageUrl = uploadImage.Location;
+        }
+
+        const context = {
+            title: data.title,
+            description: data.description,
+            imageUrl: data.imageUrl,
+            bgColor: data.bgColor,
+            hashtagRefs: data.hashtagRefs
+        };
+
+        return await new Card(context).save();
     }
 
     async getAll() {
-        return await Card.find({ isDeleted: false });
-    }
-
-    async getAllWithHashtags() {
-        return await Card.find({ isDeleted: false }).populate("hashtags", "title");
-    }
-
-    async getAllByUser(userId) {
-        return await Card.find({ isDeleted: false, user: userId });
+        return await Card.find({})
+            // check if not deleted
+            .where({ isDeleted: { $in: [false, undefined] } })
+            // Populate hashtagRefs
+            .populate({ path: "hashtagRefs", select: "title" });
     }
 
     async getOne(cardId) {
-        const card = await Card.findOne({ _id: cardId });
-        if (!card) throw new CustomError("card does not exists", 404);
+        const card = await Card.findOne({ _id: cardId })
+            // check if not deleted
+            .where({ isDeleted: { $in: [false, undefined] } });
+
+        if (!card) throw new CustomError("Card does not exists");
+
         return card;
     }
 
     async update(cardId, data) {
-        if (typeof data.hashtags !== "undefined" && !data.hashtags) data.hashtags = [];
-        if (typeof data.hashtags !== "undefined" && data.hashtags.length === 0) throw new CustomError("card must have at least one hashtag");
+        const card = await Card.findByIdAndUpdate({ _id: cardId }, { $set: data }, { new: true })
+            // check if not deleted
+            .where({ isDeleted: { $in: [false, undefined] } });
 
-        const card = await Card.findByIdAndUpdate({ _id: cardId }, { $set: data }, { new: true });
-        if (!card) throw new CustomError("card does not exists", 404);
+        if (!card) throw new CustomError("Card dosen't exist", 404);
+
         return card;
     }
 
     async delete(cardId) {
-        const card = await this.update(cardId, { isDeleted: true });
-        return card;
+        return await this.update(cardId, { isDeleted: true });
     }
 }
 

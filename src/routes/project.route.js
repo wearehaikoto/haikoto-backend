@@ -1,15 +1,15 @@
-const { role } = require("./../config");
 const router = require("express").Router();
-const auth = require("./../middlewares/auth.middleware");
 const ProjectCtrl = require("./../controllers/project.controller");
+const auth = require("./../middlewares/auth.middleware");
+const { role } = require("./../config");
 
 router.post("/", auth(role.ADMIN), ProjectCtrl.create);
 
 router.get("/", auth(role.ADMIN), ProjectCtrl.getAll);
 
-router.get("/defaults", auth(role.USER), ProjectCtrl.getAllDefaults);
+router.get("/user", auth(role.USER), ProjectCtrl.getAllForUser);
 
-router.get("/org/:organisationId", auth(role.USER), ProjectCtrl.getAllByOrganisation);
+router.get("/organisation/:organisationId", auth(role.USER), ProjectCtrl.getAllForOrganisation);
 
 router.get("/:projectId", auth(role.ADMIN), ProjectCtrl.getOne);
 

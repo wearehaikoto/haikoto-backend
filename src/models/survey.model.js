@@ -1,94 +1,75 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const UniqueIDGenerator = require("../utils/unique-id-generator");
 
 const surveySchema = new Schema(
     {
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
+        uniqueId: {
+            type: String,
+            required: true,
+            unique: true,
+            default: () => "S0-" + new UniqueIDGenerator().generateCustom(9)
+        },
+
+        userRef: {
+            type: Schema.Types.ObjectId,
             required: true,
             ref: "user"
         },
-        project: {
-            type: mongoose.Schema.Types.ObjectId,
-            required: false,
+
+        projectRef: {
+            type: Schema.Types.ObjectId,
+            required: true,
             ref: "project"
         },
-        rightSwipedCards: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    required: true,
-                    ref: "card"
-                }
-            ],
-            required: true
-        },
-        leftSwipedCards: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    required: true,
-                    ref: "card"
-                }
-            ],
-            required: true
-        },
-        rightSwipedHashtags: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    required: true,
-                    ref: "hashtag"
-                }
-            ],
-            required: true
-        },
-        leftSwipedHashtags: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    required: true,
-                    ref: "hashtag"
-                }
-            ],
-            required: true
-        },
-        isDeleted: {
-            type: Boolean,
-            required: true,
-            default: false
-        }
+
+        leftSwipedCardRefs: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "card"
+            }
+        ],
+        rightSwipedCardRefs: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "card"
+            }
+        ],
+
+        leftSwipedHashtagRefs: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "hashtag"
+            }
+        ],
+        rightSwipedHashtagRefs: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "hashtag"
+            }
+        ]
     },
     {
         timestamps: true
     }
 );
 
-surveySchema.pre("find", function (next) {
-    this.populate({
-        path: "user",
-        populate: { path: "organisation" }
-    });
-    this.populate("project");
-
-    next();
-});
-
 surveySchema.pre("findOne", function (next) {
-    this.populate("user");
-    this.populate({
-        path: "leftSwipedCards",
-        populate: { path: "hashtags" }
-    });
-    this.populate({
-        path: "rightSwipedCards",
-        populate: { path: "hashtags" }
-    });
-    this.populate("leftSwipedHashtags");
-    this.populate("rightSwipedHashtags");
-    this.populate("project");
-
+    this.populate("userRef");
+    this.populate("projectRef");
+    this.populate("leftSwipedCardRefs");
+    this.populate("rightSwipedCardRefs");
+    this.populate("leftSwipedHashtagRefs");
+    this.populate("rightSwipedHashtagRefs");
     next();
 });
+
+// set mongoose options to have lean turned on by default | ref: https://itnext.io/performance-tips-for-mongodb-mongoose-190732a5d382
+mongoose.Query.prototype.setOptions = function () {
+    if (this.mongooseOptions().lean == null) {
+        this.mongooseOptions({ lean: true });
+    }
+    return this;
+};
 
 module.exports = mongoose.model("survey", surveySchema);

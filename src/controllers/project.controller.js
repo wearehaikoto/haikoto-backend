@@ -10,17 +10,17 @@ class ProjectContoller {
 
     async getAll(req, res) {
         const result = await ProjectServ.getAll();
-        res.status(200).send(response("all projects", result));
+        res.status(200).send(response("All project", result));
     }
 
-    async getAllDefaults(req, res) {
-        const result = await ProjectServ.getAllDefaults();
-        res.status(200).send(response("all default projects", result));
+    async getAllForUser(req, res) {
+        const result = await ProjectServ.getAllForUser(req.$user, req.$organisation);
+        res.status(200).send(response("All project for user", result));
     }
 
-    async getAllByOrganisation(req, res) {
-        const result = await ProjectServ.getAllByOrganisation(req.params.organisationId);
-        res.status(200).send(response("all projects by organisation", result));
+    async getAllForOrganisation(req, res) {
+        const result = await ProjectServ.getAllForOrganisation(req.params.organisationId);
+        res.status(200).send(response("All project for organisation", result));
     }
 
     async getOne(req, res) {

@@ -1,30 +1,16 @@
-const response = require("./../utils/response");
 const CardServ = require("./../services/card.service");
+
+const response = require("./../utils/response");
 
 class CardContoller {
     async create(req, res) {
-        const result = await CardServ.create(req.body, req.$user._id);
+        const result = await CardServ.create(req.body);
         res.status(201).send(response("card created", result));
     }
 
     async getAll(req, res) {
         const result = await CardServ.getAll();
-        res.status(200).send(response("all card", result));
-    }
-
-    async getAllWithHashtags(req, res) {
-        const result = await CardServ.getAllWithHashtags();
-        res.status(200).send(response("all cards with hashtags", result));
-    }
-
-    async getAllByMe(req, res) {
-        const result = await CardServ.getAllByUser(req.$user._id);
-        res.status(200).send(response("all card", result));
-    }
-
-    async getAllByUser(req, res) {
-        const result = await CardServ.getAllByUser(req.params.userId);
-        res.status(200).send(response("all card", result));
+        res.status(200).send(response("All card", result));
     }
 
     async getOne(req, res) {

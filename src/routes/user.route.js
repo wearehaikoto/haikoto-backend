@@ -1,13 +1,13 @@
-const { role } = require("./../config");
+const { role } = require("../config");
 const router = require("express").Router();
-const auth = require("./../middlewares/auth.middleware");
-const UserCtrl = require("./../controllers/user.controller");
+const auth = require("../middlewares/auth.middleware");
+const UserCtrl = require("../controllers/user.controller");
 
 router.post("/", auth(role.ADMIN), UserCtrl.create);
 
 router.get("/", auth(role.ADMIN), UserCtrl.getAll);
 
-router.get("/org/:organisationId", auth(role.ADMIN), UserCtrl.getAllByOrganisation);
+router.get("/organisation/:organisationId", auth(role.USER), UserCtrl.getAllForOrganisation);
 
 router.get("/me", auth(role.USER), UserCtrl.getMe);
 

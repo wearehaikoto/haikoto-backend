@@ -1,5 +1,6 @@
-const response = require("./../utils/response");
 const HashtagServ = require("./../services/hashtag.service");
+
+const response = require("./../utils/response");
 
 class HashtagContoller {
     async create(req, res) {
@@ -9,17 +10,12 @@ class HashtagContoller {
 
     async getAll(req, res) {
         const result = await HashtagServ.getAll();
-        res.status(200).send(response("all hashtag", result));
+        res.status(200).send(response("All hashtag", result));
     }
 
     async getAllTitles(req, res) {
         const result = await HashtagServ.getAllTitles();
-        res.status(200).send(response("all hashtag titles", result));
-    }
-
-    async getAllWithParentHashtag(req, res) {
-        const result = await HashtagServ.getAllWithParentHashtag();
-        res.status(200).send(response("all hashtag with parents", result));
+        res.status(200).send(response("All hashtag titles", result));
     }
 
     async getOne(req, res) {

@@ -5,24 +5,29 @@ const projectSchema = new Schema(
     {
         name: {
             type: String,
-            required: true,
-            trim: true
-        },
-        hashtags: {
-            type: [
-                {
-                    type: mongoose.Schema.Types.ObjectId,
-                    required: true,
-                    ref: "hashtag"
-                }
-            ],
             required: true
         },
-        organisation: {
+
+        deadline: {
+            type: Date,
+            required: false,
+            default: null
+        },
+
+        hashtagRefs: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "hashtag"
+            }
+        ],
+
+        organisationRef: {
             type: mongoose.Schema.Types.ObjectId,
             required: false,
-            ref: "organisation"
+            ref: "organisation",
+            default: null
         },
+
         isDeleted: {
             type: Boolean,
             required: true,
@@ -34,17 +39,18 @@ const projectSchema = new Schema(
     }
 );
 
-projectSchema.pre("find", function (next) {
-    this.populate("organisation");
-
-    next();
-});
-
 projectSchema.pre("findOne", function (next) {
-    this.populate("hashtags");
-    this.populate("organisation");
-
+    this.populate("hashtagRefs");
+    this.populate("organisationRef");
     next();
 });
+
+// set mongoose options to have lean turned on by default | ref: https://itnext.io/performance-tips-for-mongodb-mongoose-190732a5d382
+mongoose.Query.prototype.setOptions = function () {
+    if (this.mongooseOptions().lean == null) {
+        this.mongooseOptions({ lean: true });
+    }
+    return this;
+};
 
 module.exports = mongoose.model("project", projectSchema);

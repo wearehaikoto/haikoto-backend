@@ -1,37 +1,27 @@
-const { role } = require("../config");
 const router = require("express").Router();
-const auth = require("../middlewares/auth.middleware");
-const SurveyCtrl = require("../controllers/survey.controller");
+const SurveyCtrl = require("./../controllers/survey.controller");
+const auth = require("./../middlewares/auth.middleware");
+const { role } = require("./../config");
 
 router.post("/", auth(role.USER), SurveyCtrl.create);
 
 router.get("/", auth(role.ADMIN), SurveyCtrl.getAll);
 
-router.get("/user/me", auth(role.USER), SurveyCtrl.getOneByMe);
+router.get("/organisation/:organisationId", auth(role.USER), SurveyCtrl.getAllForOrganisation);
 
-router.get("/org/:organisationId", auth(role.ADMIN), SurveyCtrl.getAllByOrganisation);
+router.get("/:surveyId/card/new", auth(role.USER), SurveyCtrl.getNewCard);
 
-router.get("/user/check-new-card", auth(role.USER), SurveyCtrl.checkIfNewCardForSurvey);
-
-router.get("/user/:userId", auth(role.ADMIN), SurveyCtrl.getOneByUser);
+router.get("/:surveyId/hashtag/new", auth(role.USER), SurveyCtrl.getNewHashtag);
 
 router.get("/:surveyId", auth(role.USER), SurveyCtrl.getOne);
 
-router.post("/:surveyId/card/new", auth(role.USER), SurveyCtrl.newCard);
-
-router.post("/:surveyId/hashtag/new", auth(role.USER), SurveyCtrl.newHashtag);
-
-router.post("/:surveyId/card/add-left-swiped-card", auth(role.USER), SurveyCtrl.addLeftSwipedCard);
-
-router.post("/:surveyId/card/add-right-swiped-card", auth(role.USER), SurveyCtrl.addRightSwipedCard);
-
-router.put("/:surveyId/card/update-right-swiped-cards", auth(role.USER), SurveyCtrl.updateRightSwipedCards);
-
-router.post("/:surveyId/hashtag/add-left-swiped-hashtag", auth(role.USER), SurveyCtrl.addLeftSwipedHashtag);
-
-router.post("/:surveyId/hashtag/add-right-swiped-hashtag", auth(role.USER), SurveyCtrl.addRightSwipedHashtag);
-
 router.put("/:surveyId", auth(role.ADMIN), SurveyCtrl.update);
+
+router.patch("/:surveyId/card/left-swiped", auth(role.USER), SurveyCtrl.updateLeftSwipedCardRefs);
+router.patch("/:surveyId/card/right-swiped", auth(role.USER), SurveyCtrl.updateRightSwipedCardRefs);
+
+router.patch("/:surveyId/hashtag/left-swiped", auth(role.USER), SurveyCtrl.updateLeftSwipedHashtagRefs);
+router.patch("/:surveyId/hashtag/right-swiped", auth(role.USER), SurveyCtrl.updateRightSwipedHashtagRefs);
 
 router.delete("/:surveyId", auth(role.ADMIN), SurveyCtrl.delete);
 

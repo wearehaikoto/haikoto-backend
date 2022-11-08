@@ -3,7 +3,7 @@ const AuthService = require("../services/auth.service");
 
 class AuthContoller {
     async login(req, res) {
-        const result = await AuthService.login(req.body);
+        const result = await AuthService.login(req);
         res.status(200).send(response("user login successful", result));
     }
 }
