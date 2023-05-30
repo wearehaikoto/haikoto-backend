@@ -1,7 +1,7 @@
 const config = {
     APP_NAME: "haikoto",
     JWT_SECRET: process.env.JWT_SECRET || "000-12345-000",
-    MONGODB_URI: process.env.MONGO_ATLAS_URI || "mongodb://localhost:27017/haikoto",
+    MONGODB_URI: process.env.MONGO_ATLAS_URI || "mongodb://127.0.0.1:27017/haikoto",
     BCRYPT_SALT: process.env.BCRYPT_SALT || 10,
     role: {
         USER: ["user", "admin"],
@@ -21,7 +21,7 @@ const config = {
     },
     IMGBB: {
         BASE_URL: process.env.IMGBB_BASE_URL || "https://api.imgbb.com/1/upload",
-        API_KEY: process.env.IMGBB_API_KEY || "9f71d9cff4efa4e7eda61275e33df975"
+        API_KEY: process.env.IMGBB_API_KEY
     }
 };
 
